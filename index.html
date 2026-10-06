@@ -771,6 +771,27 @@
 .ol-fraksi-h small { opacity:.7; font-weight:600; }
 .ol-fraksi-btns { display:flex; gap:8px; margin-bottom:6px; }
 .ol-fraksi-btns button { flex:1; width:auto; margin:0; padding:9px 8px; font-size:12.5px; line-height:1.25; }
+
+/* ===== TUTORIAL (bisa dilewati) ===== */
+.tut-overlay{position:fixed;inset:0;background:rgba(2,6,23,.88);z-index:10080;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.tut-card{width:min(460px,100%);max-height:90vh;overflow:auto;background:#0f172a;border:1px solid #6366f1;border-radius:20px;padding:20px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.65);text-align:center;box-sizing:border-box}
+.tut-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;opacity:.85;margin-bottom:6px}
+.tut-top button{width:auto;margin:0;padding:6px 12px;font-size:13px;background:#334155;border-radius:999px}
+.tut-emoji{font-size:54px;line-height:1.1;margin:6px 0}
+.tut-card h2{margin:4px 0 10px;font-size:20px}
+.tut-body{font-size:14px;line-height:1.55;text-align:left;background:#172554;border:1px solid #334155;border-radius:12px;padding:12px 14px}
+.tut-body ul{margin:6px 0 0;padding-left:20px}
+.tut-body li{margin:4px 0}
+.tut-dots{display:flex;justify-content:center;gap:6px;margin:14px 0 10px}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:#475569}
+.tut-dot.on{background:#818cf8;width:20px;border-radius:999px}
+.tut-nav{display:flex;gap:8px}
+.tut-nav button{margin:0;flex:1}
+.tut-nav .tut-prev{background:#334155}
+.tut-nav .tut-next{background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.tut-nosee{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:12px;opacity:.85;cursor:pointer}
+.tut-nosee input{width:auto;margin:0}
+#btnTutorial{background:#334155;margin-top:10px}
 </style>
 </head>
 <body>
@@ -811,6 +832,26 @@
         </div>
     </div>
 
+
+    <!-- TUTORIAL (bisa dilewati) -->
+    <div id="tutOverlay" class="tut-overlay hidden" role="dialog" aria-modal="true" aria-label="Tutorial">
+        <div class="tut-card">
+            <div class="tut-top">
+                <span id="tutStep">1 / 1</span>
+                <button type="button" id="tutSkip">⏭️ Lewati</button>
+            </div>
+            <div class="tut-emoji" id="tutEmoji"></div>
+            <h2 id="tutTitle"></h2>
+            <div class="tut-body" id="tutBody"></div>
+            <div class="tut-dots" id="tutDots"></div>
+            <div class="tut-nav">
+                <button type="button" class="tut-prev" id="tutPrev">◀ Kembali</button>
+                <button type="button" class="tut-next" id="tutNext">Lanjut ▶</button>
+            </div>
+            <label class="tut-nosee"><input type="checkbox" id="tutNoShow" checked> Jangan tampilkan lagi saat dibuka</label>
+        </div>
+    </div>
+
 <!-- HOME -->
     <div id="home" class="box">
         <div class="game-intro">
@@ -821,6 +862,7 @@
         <!-- MODE ONLINE (WebRTC) -->
         <button type="button" id="btnOnlineMode" onclick="window.WTSOnline && window.WTSOnline.open()" style="background:linear-gradient(90deg,#0ea5e9,#6366f1);margin-top:16px">🌐 MAIN ONLINE (BUAT / GABUNG ROOM)</button>
         <div style="font-size:12px;opacity:.8;margin-top:6px">Tiap pemain memakai HP masing-masing • Spy &amp; Warga + peran opsional (Guardian, Swapper, Mayor, Gluttony, Swapper Spy, Mayor Spy) yang diatur host • minimal 3 pemain</div>
+        <button type="button" id="btnTutorial" onclick="window.WTSTutorial && window.WTSTutorial.open()">📖 CARA BERMAIN (TUTORIAL)</button>
         <div id="panelLanjutGame" class="info hidden" style="margin-top:14px;background:#172554;border:1px solid #6366f1;text-align:left">
             <b>💾 PERMAINAN TERAKHIR TERDETEKSI</b>
             <div id="infoLanjutGame" style="font-size:13px;margin:8px 0;opacity:.9"></div>
@@ -943,7 +985,6 @@
             <div class="role-item"><input type="checkbox" id="role_Swapper"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Swapper"><b>Swapper</b> <span class="tag tag-warga">Warga</span><br>Saat fase skill pilih 2 target; seluruh suara keduanya ditukar di hasil voting. Maksimal 2× seumur permainan.</label></div>
             <div class="role-item"><input type="checkbox" id="role_TheGambler"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_TheGambler"><b>The Gambler</b> <span class="tag tag-warga">Warga</span><br>Taruhan nyawa: tebak Spy/Netral benar = 3 vote, salah = tereliminasi</label></div>
             <div class="role-item"><input type="checkbox" id="role_Lord"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Lord"><b>👑 Lord</b> <span class="tag tag-warga">Warga</span><br>Sekali game pilih 1 ksatria. Jika Lord harus tereliminasi, ksatria menanggungnya. Bisa simpan skill dulu.</label></div>
-            <div class="role-item"><input type="checkbox" id="role_Grinch"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Grinch"><b>Grinch</b> <span class="tag tag-warga">Warga</span><br>Tetap Warga, tetapi mendapat kata Spy</label></div>
             <div class="role-item"><input type="checkbox" id="role_Hakim"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Hakim"><b>Hakim</b> <span class="tag tag-warga">Warga</span><br>Vote dihitung 2; jika menvote warga dan warga tersebut tereliminasi maka bonus dicabut</label></div>
             <div class="role-item"><input type="checkbox" id="role_PenggandaSuara"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_PenggandaSuara"><b>💣 Plumber</b> <span class="tag tag-warga">Warga</span><br>Pemain pertama yang men-vote Plumber terkena ledakan bom dan tereliminasi.</label></div>
             <div class="role-item"><input type="checkbox" id="role_Lovers"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Lovers"><b>Lovers</b> <span class="tag tag-warga">Warga</span><br>Tim Warga. 2 pemain terhubung; jika satu mati, pasangan ikut mati. Mendapat kata warga.</label></div>
@@ -2229,7 +2270,6 @@ var deskripsiPeranLengkap = {
     "The Gambler": "🎰 Tim Warga. Saat voting dapat menuduh 1 pemain sebagai Spy atau Netral. Jika benar, mendapat 3 vote. Jika salah, The Gambler tereliminasi.",
     "Warrior": "⚔️ Tim Netral. Menandai target pribadi sekali saja (2 pemain, atau 1 jika 4 pemain); setelah lengkap, target dikunci. Jika semua target gugur, Warrior menang.",
     "Lord": "👑 Tim Warga. Sekali game memilih satu ksatria. Jika Lord harus tereliminasi, ksatria menanggungnya (hanya sekali). Skill boleh disimpan dulu.",
-    "Grinch": "👁️ Tim Warga. Kamu berada di kubu Warga. Gunakan kata kunci yang kamu lihat untuk menjelaskan seperti warga lain, dan bantu tim menemukan Spy.",
     "Hakim": "⚖️ Tim Warga. Suara Hakim bernilai dua. Jika pilihan yang dibuat ternyata merugikan pihak Warga, bonus tersebut dapat dicabut sesuai aturan Hakim.",
     "Si Pewaris": "🔄 Tim Netral. Memilih satu target sekali saja (lalu dikunci). Jika target gugur, Si Pewaris mewarisi peran dan kata target.",
     "Duelist": "⚔️ Tim Netral. Melihat kata Spy dan Warga. Menang jika tersisa bersama tepat 1 warga atau 1 netral lain. Jika semua Spy tersingkir lebih dulu, permainan tetap berlanjut sampai Duelist menang atau tereliminasi. Skill: sembunyikan dirimu dari daftar pilihan voting (2× seumur game, bisa disimpan).",
@@ -2522,7 +2562,6 @@ function warnaRole(role) {
                 "Warrior":"netral",
         "Lord":"gold",
         "Changer":"spy","Gluto":"spy",
-        "Grinch":"warga",
         "Hakim":"gold",
         "Si Pewaris":"netral",
         "Arsonist":"spy",
@@ -2650,7 +2689,7 @@ function isSpyRole(role) {
     return ["Spy","Changer","Gluto","Gluttony","Arsonist","Penyamaran","Arwah Spy","Dementor","Swapper Spy","Mayor Spy","Revenger Spy","Conjurer","Antihero","Perisai Spy","Reverse Spy","Penipu","Necromancer","Dalang"].indexOf(role) >= 0 || !!roleSkillSpy[role];
 }
 function isWargaRole(role) {
-    return ["Warga","Dokter","Polisi","Pemburu","Nezha","Dewi Keadilan","Hantu","Revenger","Guardian","Perisai","Hero","The Traitor","The Canceller","Mayor","Swapper","The Gambler","Lord","Grinch","Hakim","Plumber","Lovers","Reverse"].indexOf(role) >= 0;
+    return ["Warga","Dokter","Polisi","Pemburu","Nezha","Dewi Keadilan","Hantu","Revenger","Guardian","Perisai","Hero","The Traitor","The Canceller","Mayor","Swapper","The Gambler","Lord","Hakim","Plumber","Lovers","Reverse"].indexOf(role) >= 0;
 }
 function isNetralRole(role) {
     return ["Netral","Mr. White","Badut Bahagia","Phantom","The Doppleganger","Survivor","No You","Kaitou","Warrior","Si Pewaris","Duelist","Zero","Ahli Hipnotis"].indexOf(role) >= 0;
@@ -3437,7 +3476,6 @@ window.prosesMulai = function() {
         Warrior: (document.getElementById("role_Warrior") ? document.getElementById("role_Warrior").checked : false),
         Lord: document.getElementById("role_Lord") ? document.getElementById("role_Lord").checked : false,
         Changer: (document.getElementById("role_Changer") ? document.getElementById("role_Changer").checked : false),
-        Grinch: (document.getElementById("role_Grinch") ? document.getElementById("role_Grinch").checked : false),
         Hakim: (document.getElementById("role_Hakim") ? document.getElementById("role_Hakim").checked : false),
         "Si Pewaris": (document.getElementById("role_SiPewaris") ? document.getElementById("role_SiPewaris").checked : false),
         Arsonist: (document.getElementById("role_Arsonist") ? document.getElementById("role_Arsonist").checked : false),
@@ -3614,7 +3652,6 @@ function skillDefaultKhusus(role) {
         "Warrior": {id:"warior", nama:"⚔️ Warrior", fungsi:"Tandai target sekali (2 pemain / 1 jika 4 pemain), lalu dikunci. Jika semua target gugur, menang.", cara:"Pilih target (1×)", sekaliSaja:true},
         "Lord": {id:"lord", nama:"👑 Lord", fungsi:"Sekali game pilih 1 ksatria. Jika Lord harus tereliminasi, ksatria menanggungnya. Boleh disimpan dulu.", cara:"Pilih 1 pemain / simpan", sekaliSaja:true, maxUses:1},
         "Changer": {id:"changer", nama:"🔀 Changer", fungsi:"Sekali game tukar peran dan kata dengan target. ⚠️ HANYA BISA 1 KALI — setelah dipakai, skill hilang. Pemain yang ditukar tidak bisa menukar lagi. Boleh disimpan dulu.", cara:"Pilih 1 pemain", sekaliSaja:true, maxUses:1},
-        "Grinch": {id:"glicht", nama:"👁️ Grinch", fungsi:"Tim Warga. Gunakan kata kunci yang kamu lihat untuk menjelaskan.", cara:"Otomatis"},
         "Hakim": {id:"hakim", nama:"⚖️ Hakim", fungsi:"Vote dihitung 2; jika menvote warga dan warga tersebut tereliminasi maka bonus dicabut", cara:"Saat voting"},
         "Si Pewaris": {id:"si_pengganti", nama:"🔄 Si Pewaris", fungsi:"Pilih target sekali (lalu dikunci). Jika target gugur, warisi peran dan kata sampai game selesai.", cara:"Pilih 1 pemain (1×)", sekaliSaja:true, maxUses:1},
         "Arsonist": {id:"arsonit", nama:"🔥 Arsonist", fungsi:"Pilih pemain dan kosongkan kata kuncinya.", cara:"Pilih 1 pemain"},
@@ -3653,7 +3690,7 @@ function buatRole() {
 
     var kandidat = [];
     var daftarOpsional = ["Dokter","Polisi","Pemburu","Netral","Mr. White","Badut Bahagia","Phantom","Nezha","Dewi Keadilan","Hantu","Revenger","Guardian","Reverse","Perisai","Hero",
-        "The Doppleganger","The Traitor","The Canceller","Mayor","Survivor","No You","Swapper","Kaitou","The Gambler","Warrior","Lord","Grinch","Hakim","Si Pewaris","Duelist","Plumber","Zero","Ahli Hipnotis"];
+        "The Doppleganger","The Traitor","The Canceller","Mayor","Survivor","No You","Swapper","Kaitou","The Gambler","Warrior","Lord","Hakim","Si Pewaris","Duelist","Plumber","Zero","Ahli Hipnotis"];
     for (var d = 0; d < daftarOpsional.length; d++) {
         if (peranAktif[daftarOpsional[d]]) kandidat.push(daftarOpsional[d]);
     }
@@ -3824,9 +3861,6 @@ function buatRole() {
                 pemain[i].phantomFaction = null; // "spy" | "warga" setelah bangkit
             }
             if (r === "Lovers") loversIdx.push(i);
-        } else if (r === "Grinch") {
-            pemain[i].kata = kataSpy; // Warga tapi kata Spy
-            pemain[i].skill = skillDefaultKhusus(r);
         } else if (r === "Reverse") {
             pemain[i].kata = kataWarga;
             pemain[i].skill = skillDefaultKhusus(r);
@@ -3903,7 +3937,6 @@ function tampilkanInfoPeranEspecial(p) {
     if (p.role === "The Canceller") return '<div class="info">⏳ Sekali game kamu bisa membatalkan eliminasi hasil voting dan mengulang deskripsi dengan kata berbeda.</div>';
     if (p.role === "The Doppleganger") return '';
     if (p.role === "Penyamaran") return '<div class="info">🎭 Kamu adalah Spy, tetapi kata yang kamu lihat adalah kata Warga.</div>';
-    if (p.role === "Grinch") return '<div class="info">👁️ Kamu adalah <b>Tim Warga</b>. Gunakan kata kunci yang kamu lihat untuk menjelaskan.</div>';
     if (p.role === "The Traitor") return '';
     return '';
 }
@@ -3919,7 +3952,6 @@ function gantiKataRondeBerikutnya() {
     for (var i=0;i<pemain.length;i++) {
         if (pemain[i].role === "Duelist") pemain[i].kata = "Warga: " + nw + " | Spy: " + ns;
         else if (tanpaKata(pemain[i].role) || pemain[i].role === "Mr. White") pemain[i].kata = "";
-        else if (pemain[i].role === "Grinch") pemain[i].kata = ns; // Warga tapi kata Spy
         else if (isSpyRole(pemain[i].role)) pemain[i].kata = (pemain[i].role === "Penyamaran") ? nw : ns;
         else pemain[i].kata = nw;
     }
@@ -6502,8 +6534,6 @@ function eksekusiSkill(targetIndex) {
                 mainkanEfekSkill("steal", "🧙 DEMENTOR MENGENDALIKAN VOTE!");
                 tampilkanVoteSebagaiDementor(targetIndex, null, pengguna.dementorUses);
                 return; // jangan lanjut ke tampilan hasil generik
-            case "glicht":
-                pesan="👁️ Kamu Tim Warga. Kata kuncimu: <b>"+(pengguna.kata || kataSpyGlobal)+"</b>"; break;
             case "duelist":
                 pesan="🔧 Kata Warga: <b>"+kataWargaGlobal+"</b><br>👁️ Kata Spy: <b>"+kataSpyGlobal+"</b>"; break;
             case "lord":
@@ -6558,7 +6588,7 @@ function eksekusiSkill(targetIndex) {
             pembongkar:"scan", pemindai:"scan", pelacak:"scan", penyelidik:"scan", penyusup:"scan", penggeledahan:"scan", radar:"scan", auditor:"scan", penyidik:"scan", penilai:"scan", pengamat_malam:"scan",
             pelindung:"shield", sembuhkan:"shield", vaksin:"shield", penengah:"shield", pelindung_ganda:"shield", penjaga:"shield", guardian:"shield",
             hidupkan:"heal", resusitasi:"heal", defibrilator:"heal", obat_ajaib:"heal", darurat:"heal", transplantasi:"heal", diagnosis:"heal", operasi:"heal", antidot:"heal",
-            pengintai:"info", glicht:"info", duelist:"info", arwah_spy:"info", survivor:"info", traitor:"info", mayor:"vote", mayor_spy:"vote", hakim:"vote", godfather:"vote",
+            pengintai:"info", duelist:"info", arwah_spy:"info", survivor:"info", traitor:"info", mayor:"vote", mayor_spy:"vote", hakim:"vote", godfather:"vote",
             dementor:"steal", kaito:"steal", changer:"transform", gluto:"transform", doppleganger:"transform", si_pengganti:"transform", lord:"shield", king:"shield", penjebak:"trap", pemantau:"scan",
             pengacau:"vote", fitnah:"vote", pembungkam:"vote", provokator:"vote", chaos:"vote",
             arsonit:"death", joker:"death",
@@ -11659,6 +11689,73 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
         $('olCodeInput').value = m[1].toUpperCase();
         setMenuStatus('Kode room terisi dari link. Isi namamu lalu tekan GABUNG ROOM.');
     })();
+})();
+</script>
+
+<script id="wts-tutorial-script">
+(function () {
+    'use strict';
+    var KEY = 'wts_tutorial_done_v1';
+    var STEPS = [
+        { e: '🕵️', t: 'Selamat datang, Agen!', b: '<b>Who The Spy</b> adalah game tebak identitas. Ada <b>Warga</b> dan ada <b>Spy</b> yang menyamar.<ul><li>Warga: temukan Spy lewat diskusi &amp; voting.</li><li>Spy: bertahan dan jangan sampai ketahuan.</li></ul>' },
+        { e: '🔐', t: 'Peran & Kata Rahasia', b: 'Tiap pemain mendapat <b>peran</b> dan <b>kata rahasia</b>.<ul><li>Warga mendapat kata yang sama.</li><li>Spy mendapat kata yang mirip tapi <b>berbeda</b>.</li><li>Ada juga <b>peran khusus</b> beserta skill-nya (tekan tombol <b>?</b> di daftar peran untuk info).</li></ul>' },
+        { e: '🗣️', t: 'Sesi Diskusi', b: 'Gantian jelaskan kata kamu <b>tanpa menyebut kata itu</b>.<ul><li>Jangan terlalu jelas supaya Spy tidak bisa menebak kata Warga.</li><li>Jangan terlalu samar supaya kamu tidak dikira Spy.</li><li>Perhatikan penjelasan pemain lain.</li></ul>' },
+        { e: '⚡', t: 'Skill Peran Khusus', b: 'Pemain dengan peran khusus bisa memakai <b>skill</b> pada sesi tertentu (misalnya melindungi, menahan, atau menukar hasil vote).<ul><li>Cek sisa pemakaian skill kamu.</li><li>Di mode online, tombol skill ada di pojok bawah saat diskusi.</li></ul>' },
+        { e: '🗳️', t: 'Voting & Hasil', b: 'Setelah diskusi, semua pemain <b>vote</b> siapa yang dicurigai sebagai Spy.<ul><li>Pemain dengan suara terbanyak tereliminasi.</li><li>Warga menang jika Spy tersingkir; Spy menang jika berhasil bertahan.</li></ul>' },
+        { e: '📱', t: 'Mode Offline', b: 'Satu HP dipakai bergantian.<ul><li>Pilih jumlah pemain &amp; peran, lalu isi nama.</li><li>Lihat identitas <b>hanya saat giliranmu</b>, lalu sembunyikan lagi sebelum menyerahkan HP.</li></ul>' },
+        { e: '🌐', t: 'Mode Online', b: 'Tiap pemain memakai HP masing-masing (minimal 3 pemain).<ul><li>Host menekan <b>Buat Room</b> dan membagikan kode 5 karakter.</li><li>Teman memilih <b>Gabung Room</b> dan memasukkan kode.</li><li>Host mengatur peran opsional &amp; durasi, lalu mulai.</li><li>Saat diskusi ada <b>chat</b> dan tombol <b>🎙️ mic</b>.</li></ul>' },
+        { e: '🚀', t: 'Siap Main!', b: 'Itu dasarnya. Kamu bisa membuka tutorial ini lagi kapan saja lewat tombol <b>📖 Cara Bermain</b> di menu utama.' }
+    ];
+    var idx = 0;
+    function $(id) { return document.getElementById(id); }
+    function store(set) {
+        try {
+            if (set) localStorage.setItem(KEY, '1');
+            else return localStorage.getItem(KEY) === '1';
+        } catch (e) {}
+        return false;
+    }
+    function render() {
+        var s = STEPS[idx], last = idx === STEPS.length - 1;
+        $('tutEmoji').textContent = s.e;
+        $('tutTitle').textContent = s.t;
+        $('tutBody').innerHTML = s.b;
+        $('tutStep').textContent = (idx + 1) + ' / ' + STEPS.length;
+        var dots = '';
+        for (var i = 0; i < STEPS.length; i++) dots += '<span class="tut-dot' + (i === idx ? ' on' : '') + '"></span>';
+        $('tutDots').innerHTML = dots;
+        $('tutPrev').style.visibility = idx === 0 ? 'hidden' : 'visible';
+        $('tutNext').textContent = last ? '✅ Mulai Main' : 'Lanjut ▶';
+        $('tutSkip').classList.toggle('hidden', last);
+    }
+    function open(fromAuto) {
+        idx = 0;
+        $('tutNoShow').checked = true;
+        render();
+        $('tutOverlay').classList.remove('hidden');
+    }
+    function close() {
+        $('tutOverlay').classList.add('hidden');
+        if ($('tutNoShow').checked) store(true);
+    }
+    function init() {
+        if (!$('tutOverlay')) return;
+        $('tutSkip').addEventListener('click', close);
+        $('tutPrev').addEventListener('click', function () { if (idx > 0) { idx--; render(); } });
+        $('tutNext').addEventListener('click', function () {
+            if (idx < STEPS.length - 1) { idx++; render(); } else close();
+        });
+        $('tutOverlay').addEventListener('click', function (ev) { if (ev.target === this) close(); });
+        document.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Escape' && !$('tutOverlay').classList.contains('hidden')) close();
+        });
+        // Otomatis tampil sekali untuk pemain baru (hanya jika sedang di menu utama)
+        var home = $('home');
+        if (!store(false) && home && !home.classList.contains('hidden')) open(true);
+    }
+    window.WTSTutorial = { open: open, close: close };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 })();
 </script>
 </body>
