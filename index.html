@@ -62,20 +62,29 @@
             color: #facc15;
             margin: 15px 0;
         }
+        /* Mode lokal: bedakan jelas PERAN (kecil) vs KATA RAHASIA (besar) */
+        .lbl-identitas { font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin: 14px 0 2px; }
+        .lbl-peran { color: #94a3b8; }
+        .lbl-kata { color: #facc15; }
+        .role.role-kecil { font-size: 20px; margin: 2px 0 10px; }
+        .kata-box { border: 2px dashed #facc15; background: rgba(250,204,21,.10); border-radius: 14px; padding: 8px 10px; margin: 4px 0 14px; }
+        .kata.kata-besar { font-size: 54px; line-height: 1.15; margin: 4px 0; word-break: break-word; }
+        .kata.kata-besar.kata-panjang { font-size: 30px; }
         .spy { color: #ef4444; --rc: 239,68,68; }
         .warga { color: #22c55e; --rc: 34,197,94; }
         .netral { color: #a855f7; --rc: 168,85,247; }
         .dokter { color: #38bdf8; --rc: 56,189,248; }
         .polisi { color: #60a5fa; --rc: 96,165,250; }
-        .pemburu { color: #f97316; --rc: 249,115,22; }
+        .pemburu { color: #06b6d4; --rc: 6,182,212; }
         .mrwhite { color: #f8fafc; --rc: 248,250,252; }
         .badut { color: #f472b6; --rc: 244,114,182; }
         .bumerang { color: #fb923c; --rc: 251,146,60; }
         .dewi { color: #fbbf24; --rc: 251,191,36; }
         .hantu { color: #94a3b8; --rc: 148,163,184; }
-        .lovers { color: #f43f5e; --rc: 244,63,94; }
+        .lovers { color: #34d399; --rc: 52,211,153; }
         .mrmime { color: #2dd4bf; --rc: 45,212,191; }
-        .revenger { color: #dc2626; --rc: 220,38,38; }
+        .revenger { color: #3b82f6; --rc: 59,130,246; }
+        .reverse { color: #818cf8; --rc: 129,140,248; }
         .guardian { color: #4ade80; --rc: 74,222,128; }
         .hero { color: #38bdf8; --rc: 56,189,248; }
         .antihero { color: #f43f5e; --rc: 244,63,94; }
@@ -2017,6 +2026,7 @@ function simpanPermainanTerakhir() {
             swaperFirstTarget: swaperFirstTarget,
             pendingNezhaVote: pendingNezhaVote,
             pendingSwapperVote: pendingSwapperVote,
+            pendingDementorVote: window.pendingDementorVote || null,
             swaperDiprosesRonde: !!swaperDiprosesRonde,
             hasilHtml: hasilHtml,
             chatLog: (window.chatLog || []).slice(-100)
@@ -2123,6 +2133,7 @@ window.lanjutkanPermainanTerakhir = function() {
         pendingNezhaVote = data.pendingNezhaVote || null;
         pendingSwapperVote = data.pendingSwapperVote || null;
         swaperDiprosesRonde = !!data.swaperDiprosesRonde;
+        window.pendingDementorVote = data.pendingDementorVote || null;
         _resumeHasilHtml = data.hasilHtml || null;
         window.chatLog = Array.isArray(data.chatLog) ? data.chatLog.slice(-100) : [];
         window.chatUnread = 0;
@@ -2165,6 +2176,13 @@ window.lanjutkanPermainanTerakhir = function() {
             tampilkanPenjelasan();
         } else if (halaman === "skill") {
             tampilkanSkill();
+            // Dementor: lanjutkan kendali vote yang terputus (refresh di tengah proses)
+            try {
+                var pdv = window.pendingDementorVote;
+                if (pdv && pdv.phase === "vote" && pemain[pdv.target]) {
+                    tampilkanVoteSebagaiDementor(pdv.target, pdv.absorbedNama, 1);
+                }
+            } catch (eDem) { try { console.error(eDem); } catch (_) {} }
         } else if (halaman === "voting") {
             tampilkanVoting();
         } else if (halaman === "hasil") {
@@ -2471,8 +2489,10 @@ function bangunHtmlIdentitasPemain(p, opsi) {
     html += '<div class="info" style="text-align:center;background:#7f1d1d">⚠️ Hanya pemain ini yang boleh melihat layar!</div>';
     html += '<div class="player-chip" style="justify-content:center;margin:12px 0"><span class="player-avatar">' + (p.avatar || "👤") + '</span><b>' + escapeHtml(p.nama) + '</b> <small style="opacity:.75">(' + status + ')</small></div>';
     try { html += htmlEfekRole(p.role, p); } catch (e) {}
-    html += '<div class="role ' + warna + '">' + escapeHtml(namaRoleTampil(p)) + '</div>';
-    html += '<div class="kata">' + escapeHtml(String(kataTampil)) + '</div>';
+    html += '<div class="lbl-identitas lbl-peran">🎭 PERANMU</div>';
+    html += '<div class="role role-kecil ' + warna + '">' + escapeHtml(namaRoleTampil(p)) + '</div>';
+    html += '<div class="lbl-identitas lbl-kata">🔑 KATA RAHASIA</div>';
+    html += '<div class="kata-box"><div class="kata kata-besar' + (String(kataTampil).length > 18 ? ' kata-panjang' : '') + '">' + escapeHtml(String(kataTampil)) + '</div></div>';
     html += extra;
     html += '<div class="info"><b>⚡ Skill:</b><br>' + escapeHtml(skillNama) + '<br><br><b>📌 Fungsi:</b><br>' + escapeHtml(skillFungsi) + '</div>';
     if (p.isHipnotisPartner) {
@@ -2546,7 +2566,7 @@ function warnaRole(role) {
         "Conjurer":"spy",
         "Necromancer":"spy",
         "Dalang":"spy",
-        "Guardian":"guardian","Perisai":"guardian","Perisai Spy":"spy","Hero":"hero","Antihero":"antihero","Reverse":"special","Reverse Spy":"spy",
+        "Guardian":"guardian","Perisai":"guardian","Perisai Spy":"spy","Hero":"hero","Antihero":"antihero","Reverse":"reverse","Reverse Spy":"spy",
         "The Doppleganger":"special",
         "The Traitor":"warga",
         "The Canceller":"warga",
@@ -2676,7 +2696,7 @@ function deteksiApakahSpy(target) {
     if (target.tersembunyi) return null;
     if (target.samaranWarga) return false; // terlihat bukan Spy
     if (target.rolePalsu) return target.rolePalsu === "Spy";
-    return target.role === "Spy";
+    return fraksiPemain(target).nama === "Spy";
 }
 
 function roleTampil(target) {
@@ -2686,7 +2706,7 @@ function roleTampil(target) {
 }
 
 function isSpyRole(role) {
-    return ["Spy","Changer","Gluto","Gluttony","Arsonist","Penyamaran","Arwah Spy","Dementor","Swapper Spy","Mayor Spy","Revenger Spy","Conjurer","Antihero","Perisai Spy","Reverse Spy","Penipu","Necromancer","Dalang"].indexOf(role) >= 0 || !!roleSkillSpy[role];
+    return ["Spy","Changer","Gluto","Gluttony","Arsonist","Penyamaran","Arwah Spy","Dementor","Swapper Spy","Mayor Spy","Revenger Spy","Conjurer","Antihero","Perisai Spy","Reverse Spy","Penipu","Necromancer","Dalang","God Father"].indexOf(role) >= 0 || !!roleSkillSpy[role];
 }
 function isWargaRole(role) {
     return ["Warga","Dokter","Polisi","Pemburu","Nezha","Dewi Keadilan","Hantu","Revenger","Guardian","Perisai","Hero","The Traitor","The Canceller","Mayor","Swapper","The Gambler","Lord","Hakim","Plumber","Lovers","Reverse"].indexOf(role) >= 0;
@@ -4045,8 +4065,10 @@ function tampilkanRole() {
 
     document.getElementById("roleIsi").innerHTML =
         htmlEfekRole(p.role, p) +
-        '<div class="role ' + warna + '">' + namaRoleTampil(p) + '</div>' +
-        '<div class="kata">' + kataTampil + '</div>' +
+        '<div class="lbl-identitas lbl-peran">🎭 PERANMU</div>' +
+        '<div class="role role-kecil ' + warna + '">' + namaRoleTampil(p) + '</div>' +
+        '<div class="lbl-identitas lbl-kata">🔑 KATA RAHASIA</div>' +
+        '<div class="kata-box"><div class="kata kata-besar' + (String(kataTampil).length > 18 ? ' kata-panjang' : '') + '">' + kataTampil + '</div></div>' +
         extraInfo +
         '<div class="info">' +
             '<b>⚡ Skill:</b><br>' + (p.isHipnotisPartner ? '— Tanpa Skill' : p.skill.nama) + '<br><br>' +
@@ -5217,8 +5239,8 @@ window.skipSpecialSkill=function(){
 var daftarTebakRole = ["Spy", "Netral"];
 
 function tebakanPemburuBenar(tebakan, target) {
-    if (tebakan === "Spy") return target.role === "Spy";
-    if (tebakan === "Netral") return isNetralRole(target.role);
+    if (tebakan === "Spy") return fraksiPemain(target).nama === "Spy";
+    if (tebakan === "Netral") return fraksiPemain(target).nama === "Netral";
     return false;
 }
 
@@ -5285,8 +5307,7 @@ function eksekusiTebakJoker(targetIdx, tebakan) {
     }
     // Spy bukan Warga maupun Netral → tebakan apa pun salah
     var benar = false;
-    if (tebakan === "Warga") benar = isWargaRole(target.role);
-    else if (tebakan === "Netral") benar = isNetralRole(target.role);
+    if (tebakan === "Warga" || tebakan === "Netral") benar = fraksiPemain(target).nama === tebakan;
 
     pengguna.skillUsed = true;
     pengguna.skillUses = (pengguna.skillUses || 0) + 1;
@@ -5304,15 +5325,10 @@ function eksekusiTebakJoker(targetIdx, tebakan) {
     } else {
         mainkanEfekSkill("death", "🃏 TEBAKAN SALAH — PEMBURU SPY TERELIMINASI!");
         pengguna.hidup = false;
-        var peranAsli = target.role;
-        var kategori =
-            isSpyRole(peranAsli) ? "Spy" :
-            (isNetralRole(peranAsli) ? "Netral" :
-            (isWargaRole(peranAsli) ? "Warga" : "Lain"));
+        var fraksiAsli = fraksiPemain(target);
         var pesanSalah =
             "🎯 <b>Pemburu Spy</b> salah menebak!<br>" +
-            "Tebakan: <b>" + tebakan + "</b> — kenyataannya <b>" + target.nama + "</b> adalah <b>" + kategori + "</b> " +
-            "(<b class='" + warnaRole(peranAsli) + "'>" + peranAsli + "</b>).<br>" +
+            "Kamu bilang <b>" + tebakan + "</b>, padahal <b>" + target.nama + "</b> adalah <b class='" + fraksiAsli.className + "'>" + fraksiAsli.nama + "</b>.<br>" +
             "💀 <b>" + pengguna.nama + "</b> (Pemburu Spy) tereliminasi.";
         setelahMati(skillPlayerIdx(), pesanSalah);
     }
@@ -5929,7 +5945,7 @@ function eksekusiTebakPemburu(targetIdx, tebakan) {
         pengguna.skillUses = (pengguna.skillUses || 0) + 1;
         pengguna.hakVoteDiblokir = 3;
         pengguna.skill = null;
-        pesan = "❌ Tebakan salah! Kamu bilang <b>" + tebakan + "</b>, padahal <b>" + target.nama + "</b> adalah <b class='" + warnaRole(target.role) + "'>" + target.role + "</b>.<br>🏹 <b>" + pengguna.nama + "</b> tidak tereliminasi, tetapi <b>hak vote diblokir selama 3 kali voting</b> dan <b>skill Pemburu terhapus</b>.";
+        pesan = "❌ Tebakan salah! Kamu bilang <b>" + tebakan + "</b>, padahal <b>" + target.nama + "</b> adalah <b class='" + fraksiPemain(target).className + "'>" + fraksiPemain(target).nama + "</b>.<br>🏹 <b>" + pengguna.nama + "</b> tidak tereliminasi, tetapi <b>hak vote diblokir selama 3 kali voting</b> dan <b>skill Pemburu terhapus</b>.";
     }
 
     document.getElementById("pilihanTarget").innerHTML = "";
@@ -6113,7 +6129,7 @@ function eksekusiSkill(targetIndex) {
             case "pengintai_warga":
 
             case "penjebak":
-                if (target.role === "Spy") {
+                if (fraksiPemain(target).nama === "Spy") {
                     if (!votes[targetIndex]) votes[targetIndex] = 0;
                     votes[targetIndex] += 1;
                     pesan = "🪤 Jebakan berhasil! " + target.nama + " (Spy) mendapat +1 vote.";
@@ -6140,7 +6156,7 @@ function eksekusiSkill(targetIndex) {
                 pesan = "💧 Status teretas " + target.nama + " dibersihkan.";
                 break;
             case "penilai":
-                pesan = (target.role === "Spy" || target.role === "Netral")
+                pesan = (fraksiPemain(target).nama === "Spy" || target.role === "Netral")
                     ? "⚖️ " + target.nama + " BERBAHAYA."
                     : "⚖️ " + target.nama + " tidak berbahaya.";
                 break;
@@ -6240,7 +6256,7 @@ function eksekusiSkill(targetIndex) {
 
             // ===== DOKTER =====
             case "diagnosis":
-                pesan = (target.role === "Spy" || target.role === "Netral")
+                pesan = (fraksiPemain(target).nama === "Spy" || target.role === "Netral")
                     ? "🩺 " + target.nama + " terdeteksi 'sakit' (mencurigakan)."
                     : "✅ " + target.nama + " sehat.";
                 break;
@@ -6412,6 +6428,10 @@ function eksekusiSkill(targetIndex) {
                 // Tukar peran + kata. Skill Kaitou pindah ke pemain yang MENJADI Kaitou
                 // agar dia bisa memilih target berikutnya di giliran skill selanjutnya.
                 var kr = pengguna.role, kk = pengguna.kata;
+                // Status asal-Spy ikut berpindah bersama peran (agar hitungan Spy & fraksi tidak salah)
+                var kOrigSpy = !!pengguna.originalSpy, tOrigSpy = !!target.originalSpy;
+                pengguna.originalSpy = tOrigSpy;
+                target.originalSpy = kOrigSpy;
                 var tr = target.role, tk = target.kata, ts = target.skill;
                 var tUsed = !!target.skillUsed, tUses = target.skillUses || 0;
                 // Pengguna mengambil identitas target (bukan lagi Kaitou)
@@ -6514,6 +6534,7 @@ function eksekusiSkill(targetIndex) {
                     window.pendingDementorVote.absorbedNama = absorbed.nama;
                     window.pendingDementorVote.phase = "useAbsorbed";
                     mainkanEfekSkill("steal", "🧙 DEMENTOR MENYERAP SKILL!");
+                    try { simpanPermainanTerakhir(); } catch (eSv) {}
                     // Tampilkan skill yang baru diserap agar bisa dipakai langsung di giliran ini
                     try {
                         document.getElementById("hasilSkill").classList.add("hidden");
@@ -7206,6 +7227,7 @@ function tampilkanVoteSebagaiDementor(targetIdx, absorbedNama, usesNow) {
         btnToggle.innerText = "🙈 SEMBUNYIKAN SKILL";
         btnToggle.style.background = "#64748b";
     }
+    try { simpanPermainanTerakhir(); } catch (eSv2) {}
 }
 
 window.dementorCastVote = function(spiritIdx, targetVoteIdx) {
@@ -7229,7 +7251,7 @@ window.dementorCastVote = function(spiritIdx, targetVoteIdx) {
         } else {
             pesan += "<br>Tidak ada skill yang diserap.";
         }
-        pesan += "<br>Sisa: <b>" + sisa + "/2</b>";
+        pesan += "<br>Sisa: <b>" + sisa + "/1</b>";
         if (targetVoteIdx >= 0) {
             pesan += "<br>🗳️ Vote dikendalikan → <b>" + pemain[targetVoteIdx].nama + "</b>";
         } else {
