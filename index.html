@@ -801,6 +801,34 @@
 .tut-nosee{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:12px;opacity:.85;cursor:pointer}
 .tut-nosee input{width:auto;margin:0}
 #btnTutorial{background:#334155;margin-top:10px}
+
+        /* ===== Animasi membolak-balik kartu (kata & peran) ===== */
+        .kartu-flip-in { animation: kartuFlipIn .42s cubic-bezier(.2,.8,.3,1) both; }
+        .kartu-flip-out { animation: kartuFlipOut .27s ease-in both; }
+        @keyframes kartuFlipIn {
+            from { transform: perspective(900px) rotateY(-90deg); opacity: .25; }
+            to   { transform: perspective(900px) rotateY(0deg); opacity: 1; }
+        }
+        @keyframes kartuFlipOut {
+            from { transform: perspective(900px) rotateY(0deg); opacity: 1; }
+            to   { transform: perspective(900px) rotateY(90deg); opacity: .25; }
+        }
+        .kartu-belakang {
+            margin-top: 12px; padding: 34px 16px; border-radius: 16px; text-align: center;
+            border: 2px solid #6366f1; color: #c7d2fe; line-height: 1.5;
+            background:
+                repeating-linear-gradient(45deg, rgba(99,102,241,.14) 0 10px, rgba(99,102,241,0) 10px 20px),
+                linear-gradient(160deg, #1e1b4b, #0f172a);
+            box-shadow: inset 0 0 0 4px rgba(15,23,42,.9), 0 8px 24px rgba(0,0,0,.45);
+        }
+        .kartu-ketuk { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+        .kartu-hint { text-align: center; font-size: 12px; opacity: .7; margin-top: 10px; }
+        .kartu-belakang .kb-ikon { font-size: 54px; margin-bottom: 6px; }
+        .kartu-belakang .kb-judul { font-size: 18px; font-weight: bold; color: #fff; }
+        .kartu-belakang small { display: block; margin-top: 6px; opacity: .8; font-size: 13px; }
+        @media (prefers-reduced-motion: reduce) {
+            .kartu-flip-in, .kartu-flip-out { animation-duration: .01s !important; }
+        }
 </style>
 </head>
 <body>
@@ -1011,7 +1039,7 @@
             <div class="role-item"><input type="checkbox" id="role_Kaitou"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Kaitou"><b>Kaitou</b> <span class="tag tag-netral">Netral</span><br>Tidak mendapat kata. Tukar peran & kata target (bisa berkali-kali)</label></div>
             <div class="role-item"><input type="checkbox" id="role_Warrior"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Warrior"><b>Warrior</b> <span class="tag tag-netral">Netral</span><br>Tandai target sekali (2 pemain, atau 1 jika 4 pemain) lalu dikunci; jika semua target gugur, menang</label></div>
             <div class="role-item"><input type="checkbox" id="role_SiPewaris"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_SiPewaris"><b>Si Pewaris</b> <span class="tag tag-netral">Netral</span><br>Pilih target sekali (lalu dikunci); jika target gugur, warisi peran & kata</label></div>
-            <div class="role-item"><input type="checkbox" id="role_Duelist"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Duelist"><b>⚔️ Duelist</b> <span class="tag tag-netral">Netral</span><br>Melihat kata Spy & Warga. Menang jika tersisa dengan 1 warga atau 1 netral. Jika Spy tersingkir lebih dulu, game berlanjut sampai Duelist menang atau tereliminasi. Skill: hilangkan dirimu dari pilihan voting (2×), bisa disimpan.</label></div>
+            <div class="role-item"><input type="checkbox" id="role_Duelist"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_Duelist"><b>⚔️ Duelist</b> <span class="tag tag-netral">Netral</span><br>Melihat kata Spy & Warga. Menang jika tersisa dengan 1 warga atau 1 netral. Skill: hilangkan dirimu dari pilihan voting (2×), bisa disimpan.</label></div>
             <div class="role-item"><input type="checkbox" id="role_PengacakKata"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_PengacakKata"><b>🎲 Zero</b> <span class="tag tag-netral">Netral</span><br>Pilih 2 pemain. Jika tepat satu Warga dan satu Spy/Impostor, Zero langsung menang.</label></div>
             <div class="role-item"><input type="checkbox" id="role_AhliHipnotis"><button type="button" class="role-info-btn" title="Info peran" onclick="window.tampilkanRoleInfo(this); event.stopPropagation();">?</button><label for="role_AhliHipnotis"><b>🌀 Ahli Hipnotis</b> <span class="tag tag-netral">Netral</span><br>Sekali game pilih 1 pemain jadi sekutu hipnosis.</label></div>
         </div>
@@ -1038,8 +1066,9 @@
         <div class="info" style="text-align:center;background:#7f1d1d">
             ⚠️ Hanya pemain ini yang boleh melihat layar!
         </div>
-        <button type="button" id="btnToggleRole" onclick="window.toggleRoleDetail()" style="background:#f59e0b;margin-top:14px">👁️ TAMPILKAN IDENTITAS</button>
-        <div id="roleIsi" class="hidden"></div>
+        <button type="button" id="btnToggleRole" class="hidden" onclick="window.toggleRoleDetail()" style="background:#f59e0b;margin-top:14px">👁️ TAMPILKAN IDENTITAS</button>
+        <div id="roleIsi" class="hidden kartu-ketuk" onclick="window.toggleRoleDetail()"></div>
+        <div id="roleBack" class="kartu-belakang kartu-ketuk" onclick="window.toggleRoleDetail()"><div class="kb-ikon">🂠</div><div class="kb-judul">Identitas Tersembunyi</div><small>👆 Ketuk kartu untuk membalik &amp; melihat identitas</small></div>
         <button type="button" id="btnNextRole" class="hidden" onclick="window.prosesNextRole()">PEMAIN BERIKUTNYA</button>
     </div>
 
@@ -1174,8 +1203,8 @@
         <div id="olRole" class="ol-screen hidden">
             <h1>🔐 IDENTITAS RAHASIA</h1>
             <div class="info" style="text-align:center;background:#7f1d1d">⚠️ Ini layarmu sendiri — jangan tunjukkan ke pemain lain!</div>
-            <button type="button" class="ol-btn-amber" id="olRoleToggle" data-ol="toggle-role" style="margin-top:14px">👁️ TAMPILKAN KATA &amp; PERAN</button>
-            <div id="olRoleCard"></div>
+            <button type="button" class="ol-btn-amber hidden" id="olRoleToggle" data-ol="toggle-role" style="margin-top:14px">👁️ TAMPILKAN KATA &amp; PERAN</button>
+            <div id="olRoleCard" class="kartu-ketuk" data-ol="toggle-role"></div>
             <button type="button" class="ol-btn-green" id="olBtnReady" data-ol="ready">✅ SAYA SUDAH PAHAM</button>
             <button type="button" class="ol-btn-sec hidden" id="olBtnSkipRole" data-ol="skip">⏭️ MULAI DISKUSI SEKARANG (HOST)</button>
         </div>
@@ -1792,6 +1821,34 @@ var skillDokter = [
 ];
 
 /* ========== FUNGSI UNTUK SKILL SEKALI PAKAI ========== */
+/* Kata yang ditampilkan untuk pemain: "???" jika tidak punya kata / katanya dihilangkan karena peran tertentu */
+function kataTampilPemain(p) {
+    if (!p) return "???";
+    if (p.isHipnotisPartner) return "???";
+    if (p.role === "Duelist") return p.kata || "???";
+    if (p.role === "Phantom" && p.phantomRevived && p.kata) return p.kata;
+    if ((typeof tanpaKata === "function" && tanpaKata(p.role)) || p.role === "Mr. White" || !p.kata) return "???";
+    return p.kata;
+}
+window.kataTampilPemain = kataTampilPemain;
+
+/* ===== Batas penggunaan skill menyesuaikan jumlah pemain =====
+   Skill sekali pakai (dasar 1×) tetap 1×. Skill multi-pakai disesuaikan:
+   ≤5 pemain: dasar -1 | 6-9 pemain: dasar | 10-14 pemain: dasar +1 | 15+ pemain: dasar +2 */
+function bonusBatasSkill(jumlah) {
+    if (jumlah <= 5) return -1;
+    if (jumlah <= 9) return 0;
+    if (jumlah <= 14) return 1;
+    return 2;
+}
+function batasSkill(dasar, jumlah) {
+    if (!dasar || dasar <= 1) return dasar || 1;
+    var n = (typeof jumlah === "number") ? jumlah : ((typeof pemain !== "undefined" && pemain && pemain.length) ? pemain.length : 6);
+    return Math.max(1, dasar + bonusBatasSkill(n));
+}
+function maxPakaiSkill(skill) { return batasSkill((skill && skill.maxUses) || 1); }
+window.batasSkill = batasSkill;
+
 /**
  * Cek apakah skill masih bisa dipakai (khusus skill sekali saja)
  */
@@ -1802,7 +1859,7 @@ function skillMasihBisaDipakai(pemainIdx, skill) {
     // Jika skill punya flag "sekaliSaja"
     if (skill.sekaliSaja === true) {
         // Jika sudah dipakai (skillUses >= maxUses), tidak bisa lagi
-        if ((p.skillUses || 0) >= (skill.maxUses || 1)) {
+        if ((p.skillUses || 0) >= maxPakaiSkill(skill)) {
             return false;
         }
     }
@@ -1823,7 +1880,7 @@ function incrementSkillUses(pemainIdx) {
     p.skillUses = (p.skillUses || 0) + 1;
     
     // Jika skill "sekaliSaja" dan sudah habis, ganti ke skill kosong
-    if (skill.sekaliSaja === true && p.skillUses >= (skill.maxUses || 1)) {
+    if (skill.sekaliSaja === true && p.skillUses >= maxPakaiSkill(skill)) {
         p.skill = {
             id: "kosong",
             nama: "❌ Skill Habis",
@@ -1847,7 +1904,7 @@ function tampilkanStatusSkill(pemainIdx) {
     
     // Jika skill sekali saja, tampilkan status
     if (skill.sekaliSaja === true) {
-        var sisaPakai = (skill.maxUses || 1) - (p.skillUses || 0);
+        var sisaPakai = maxPakaiSkill(skill) - (p.skillUses || 0);
         if (sisaPakai <= 0) {
             statusText += " <span style='color:#ef4444;font-weight:bold'>[SUDAH HABIS]</span>";
         } else {
@@ -2290,7 +2347,7 @@ var deskripsiPeranLengkap = {
     "Lord": "👑 Tim Warga. Sekali game memilih satu ksatria. Jika Lord harus tereliminasi, ksatria menanggungnya (hanya sekali). Skill boleh disimpan dulu.",
     "Hakim": "⚖️ Tim Warga. Suara Hakim bernilai dua. Jika pilihan yang dibuat ternyata merugikan pihak Warga, bonus tersebut dapat dicabut sesuai aturan Hakim.",
     "Si Pewaris": "🔄 Tim Netral. Memilih satu target sekali saja (lalu dikunci). Jika target gugur, Si Pewaris mewarisi peran dan kata target.",
-    "Duelist": "⚔️ Tim Netral. Melihat kata Spy dan Warga. Menang jika tersisa bersama tepat 1 warga atau 1 netral lain. Jika semua Spy tersingkir lebih dulu, permainan tetap berlanjut sampai Duelist menang atau tereliminasi. Skill: sembunyikan dirimu dari daftar pilihan voting (2× seumur game, bisa disimpan).",
+    "Duelist": "⚔️ Tim Netral. Melihat kata Spy dan Warga. Menang jika tersisa bersama tepat 1 warga atau 1 netral lain. Skill: sembunyikan dirimu dari daftar pilihan voting (2× seumur game, bisa disimpan).",
     "Plumber": "💣 Tim Warga. Jebakan otomatis. Pemain pertama yang men-vote Plumber terkena ledakan dan tereliminasi. Plumber sendiri tidak mati karena jebakan tersebut.",
     "Zero": "🎲 Tim Netral. Sekali permainan memilih dua pemain. Jika tepat satu target adalah Warga dan satu target adalah Spy/Impostor, Zero langsung menang dan memicu tembakan ungu.",
     "God Father": "👑 Tim Spy. Sekali permainan dapat mengakhiri seluruh sesi voting. Tidak ada eliminasi; permainan langsung lanjut ke diskusi ronde berikutnya.",
@@ -2433,11 +2490,37 @@ function sfxFase(fase){
 }
 function getVibrate(){ try{ if(navigator.vibrate) navigator.vibrate([35]); }catch(e){} }
 
-function tutupGameOverlay(){ var el=document.getElementById("gameOverlay"); if(el) el.classList.add("hidden"); }
+function flipKartu(keluar, masuk, selesai){
+    if(!keluar || !masuk){ if(selesai) selesai(); return; }
+    keluar.classList.remove("kartu-flip-in"); keluar.classList.add("kartu-flip-out");
+    setTimeout(function(){
+        keluar.classList.add("hidden"); keluar.classList.remove("kartu-flip-out");
+        masuk.classList.remove("hidden"); masuk.classList.add("kartu-flip-in");
+        setTimeout(function(){ masuk.classList.remove("kartu-flip-in"); if(selesai) selesai(); }, 430);
+    }, 270);
+}
+window.flipKartu = flipKartu;
+function tutupGameOverlay(){
+    var el=document.getElementById("gameOverlay"); if(!el) return;
+    var box=document.getElementById("gameModalIsi");
+    if(box && box.getAttribute("data-flip")==="1" && !el.classList.contains("hidden")){
+        box.setAttribute("data-flip","");
+        box.classList.remove("kartu-flip-in"); box.classList.add("kartu-flip-out");
+        setTimeout(function(){ el.classList.add("hidden"); box.classList.remove("kartu-flip-out"); }, 270);
+    } else {
+        el.classList.add("hidden");
+    }
+}
 window.tutupGameOverlay=tutupGameOverlay;
-function bukaOverlay(html){
+function bukaOverlay(html, flip){
     var box=document.getElementById("gameModalIsi"), ov=document.getElementById("gameOverlay");
-    if(!box||!ov) return; box.innerHTML=html; ov.classList.remove("hidden");
+    if(!box||!ov) return; box.innerHTML=html; box.setAttribute("data-flip", flip ? "1" : "");
+    box.classList.remove("kartu-flip-out"); box.classList.remove("kartu-flip-in");
+    ov.classList.remove("hidden");
+    if(flip){
+        void box.offsetWidth; box.classList.add("kartu-flip-in");
+        setTimeout(function(){ box.classList.remove("kartu-flip-in"); }, 450);
+    }
 }
 
 /* ===== LIHAT KATA & PERAN (diskusi + setelah hasil voting) ===== */
@@ -2515,7 +2598,7 @@ window.lihatKataPeranDiskusi = function() {
     }
     var html = bangunHtmlIdentitasPemain(p, { judul: "👁️ KATA & PERAN — " + p.nama });
     html += '<button type="button" onclick="window.tutupGameOverlay()" style="background:#64748b">🙈 SEMBUNYIKAN</button>';
-    bukaOverlay(html);
+    bukaOverlay(html, true);
 };
 
 window.bukaPilihLihatIdentitas = function() {
@@ -2542,7 +2625,7 @@ window.tampilkanIdentitasPemain = function(idx) {
     var html = bangunHtmlIdentitasPemain(p, { judul: "👁️ KATA & PERAN — " + p.nama });
     html += '<button type="button" onclick="window.bukaPilihLihatIdentitas()" style="background:#475569">⬅️ PILIH PEMAIN LAIN</button>';
     html += '<button type="button" onclick="window.tutupGameOverlay()" style="background:#64748b">🙈 SEMBUNYIKAN</button>';
-    bukaOverlay(html);
+    bukaOverlay(html, true);
 };
 
 
@@ -3826,7 +3909,7 @@ function buatRole() {
         } else if (r === "Perisai") {
             pemain[i].kata = kataWarga;
             pemain[i].skill = skillDefaultKhusus(r);
-            pemain[i].perisaiSisa = 2;
+            pemain[i].perisaiSisa = batasSkill(2);
             pemain[i].perisaiLog = [];
         } else if (r === "Hero") {
             pemain[i].kata = kataWarga;
@@ -3837,10 +3920,10 @@ function buatRole() {
             pemain[i].skill = skillDefaultKhusus(r);
             pemain[i].originalSpy = true;
             if (r === "Antihero") pemain[i].antiheroSisa = 1;
-            if (r === "Perisai Spy") { pemain[i].perisaiSisa = 2; pemain[i].perisaiLog = []; }
+            if (r === "Perisai Spy") { pemain[i].perisaiSisa = batasSkill(2); pemain[i].perisaiLog = []; }
             if (r === "Reverse Spy") pemain[i].reverseTriggered = false;
             if (r === "Penipu") {
-                pemain[i].penipuTiruSisa = 2;
+                pemain[i].penipuTiruSisa = batasSkill(2);
                 pemain[i].penipuTiruTarget = -1;
                 pemain[i].penipuTiruPosisi = null; // "atas" | "bawah"
             }
@@ -3909,7 +3992,7 @@ function buatRole() {
             pemain[i].gluttonyUses = 0; // max 2
         }
         if (isPerisaiRole(pemain[i].role) || (pemain[i].skill && pemain[i].skill.id === "perisai")) {
-            pemain[i].perisaiSisa = 2;
+            pemain[i].perisaiSisa = batasSkill(2);
         }
         if (pemain[i].role === "Hero" || (pemain[i].skill && pemain[i].skill.id === "hero")) {
             if (typeof pemain[i].heroSisa !== "number") pemain[i].heroSisa = 1;
@@ -3933,7 +4016,7 @@ function buatRole() {
 
 
 function tampilkanInfoPeranEspecial(p) {
-    if (p.role === "Duelist") return '<div class="info">⚔️ Kamu melihat <b>kedua kata</b> (Warga & Spy). Menang jika tersisa dengan <b>1 warga</b> atau <b>1 netral</b>. Jika Spy tersingkir lebih dulu, game berlanjut sampai kamu menang atau tereliminasi. Skill: sembunyikan dirimu dari voting (2×).</div>';
+    if (p.role === "Duelist") return '<div class="info">⚔️ Kamu melihat <b>kedua kata</b> (Warga & Spy). Menang jika tersisa dengan <b>1 warga</b> atau <b>1 netral</b>. Skill: sembunyikan dirimu dari voting (2×).</div>';
     if (p.role === "Necromancer") return '<div class="info">☠️ Sekali game kamu bisa menghidupkan 1 pemain mati menjadi <b>sekutu Spy</b>.</div>';
     if (p.role === "Survivor" || p.role === "Badut Bahagia") return '<div class="info">🔒 Kamu tidak memiliki kata kunci.</div>';
     if (p.role === "Phantom") {
@@ -4078,13 +4161,23 @@ function tampilkanRole() {
         '<div class="info" style="line-height:1.6"><b>📖 Deskripsi Lengkap Peran:</b><br>' + deskripsiRolePemain(p) + '</div>' +
         '<div class="info" style="text-align:center;background:#1e293b">' +
             '🔒 Jangan tunjukkan ke siapa pun!' +
-        '</div>';
+        '</div>' +
+        '<div class="kartu-hint">👆 Ketuk kartu untuk menyembunyikan</div>';
 
     // Reset ke keadaan tersembunyi
     document.getElementById("roleIsi").classList.add("hidden");
+    window._flipRoleBusy = false;
+    (function(){
+        var rb = document.getElementById("roleBack");
+        if (rb) {
+            rb.classList.remove("hidden"); rb.classList.remove("kartu-flip-in");
+            void rb.offsetWidth; rb.classList.add("kartu-flip-in");
+            setTimeout(function(){ rb.classList.remove("kartu-flip-in"); }, 450);
+        }
+    })();
     document.getElementById("btnNextRole").classList.add("hidden");
     var btnToggle = document.getElementById("btnToggleRole");
-    btnToggle.classList.remove("hidden");
+    btnToggle.classList.add("hidden");
     btnToggle.innerText = "👁️ TAMPILKAN IDENTITAS";
     btnToggle.style.background = "#f59e0b";
 }
@@ -4094,18 +4187,23 @@ window.toggleRoleDetail = function() {
     var btnToggle = document.getElementById("btnToggleRole");
     var btnNext = document.getElementById("btnNextRole");
 
+    if (window._flipRoleBusy) return;
+    var roleBack = document.getElementById("roleBack");
+
     if (roleIsi.classList.contains("hidden")) {
-        // Tampilkan
-        roleIsi.classList.remove("hidden");
+        // Tampilkan (balik kartu: belakang -> depan)
         btnToggle.innerText = "🙈 SEMBUNYIKAN IDENTITAS";
         btnToggle.style.background = "#64748b";
         btnNext.classList.remove("hidden");
+        window._flipRoleBusy = true;
+        window.flipKartu(roleBack, roleIsi, function(){ window._flipRoleBusy = false; });
     } else {
-        // Sembunyikan
-        roleIsi.classList.add("hidden");
+        // Sembunyikan (balik kartu: depan -> belakang)
         btnToggle.innerText = "👁️ TAMPILKAN IDENTITAS";
         btnToggle.style.background = "#f59e0b";
         btnNext.classList.add("hidden");
+        window._flipRoleBusy = true;
+        window.flipKartu(roleIsi, roleBack, function(){ window._flipRoleBusy = false; });
     }
 };
 
@@ -4318,7 +4416,8 @@ function tampilkanSkill() {
     if (!sedangDalangKontrol && (p.ditahan || p.teretas || p.dimakan || p.dikendalikanDalang)) {
         // Penyebab (Hacker / Dalang / Polisi / Gluttony) sengaja tidak ditampilkan agar tidak diketahui
         document.getElementById("skillIsi").innerHTML =
-            '<div class="skill">❌ Skill tidak dapat digunakan</div>';
+            '<div class="skill">❌ Skill tidak dapat digunakan</div>' +
+            '<div class="info" style="text-align:center">❌ Skill tidak dapat digunakan</div>';
         boxTarget.innerHTML = '';
         document.getElementById("hasilSkill").classList.add("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -4401,13 +4500,13 @@ function tampilkanSkill() {
         if (!p.skill || p.skill.id === "tidak_ada" || p.skill.id === "dasar") {
             p.skill = {id:"penipu", nama:"🎭 Penipu", fungsi:"Meniru Nama (2×).", cara:"Pilih target / simpan", maxUses:2};
         }
-        if (typeof p.penipuTiruSisa !== "number") p.penipuTiruSisa = 2;
+        if (typeof p.penipuTiruSisa !== "number") p.penipuTiruSisa = batasSkill(2);
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">🎭 Penipu — Meniru Nama</div>' +
-            '<div class="info"><b>Fungsi:</b> Pilih 1 target. Di sesi voting, <b>namamu diganti menjadi nama target</b> dan tampil secara acak tepat <b>di atas</b> atau <b>di bawah</b> nama target (sehingga ada dua nama yang sama) agar membingungkan.<br>Sisa: <b>' + p.penipuTiruSisa + '/2</b></div>';
+            '<div class="info"><b>Fungsi:</b> Pilih 1 target. Di sesi voting, <b>namamu diganti menjadi nama target</b> dan tampil secara acak tepat <b>di atas</b> atau <b>di bawah</b> nama target (sehingga ada dua nama yang sama) agar membingungkan.<br>Sisa: <b>' + p.penipuTiruSisa + '/' + batasSkill(2) + '</b></div>';
         var htmlPen = '';
         if ((p.penipuTiruSisa || 0) <= 0) {
-            htmlPen = '<div class="info">❌ Skill Meniru Nama sudah habis (2/2).</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
+            htmlPen = '<div class="info">❌ Skill Meniru Nama sudah habis.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
         } else {
             for (var pi = 0; pi < pemain.length; pi++) {
                 if (!pemain[pi].hidup || pi === skillPlayerIdx()) continue;
@@ -4481,11 +4580,11 @@ function tampilkanSkill() {
             p.skill = {id:"duelist_sembunyi", nama:"🔧 Sembunyi Voting", fungsi:"Hilangkan dirimu dari daftar pilihan voting ronde ini (2×).", cara:"Gunakan / simpan", maxUses:2};
         }
         if (typeof p.duelistSembunyiUses !== "number") p.duelistSembunyiUses = 0;
-        var sisaEng = Math.max(0, 2 - (p.duelistSembunyiUses || 0));
-        document.getElementById("skillIsi").innerHTML = '<div class="skill">🔧 Sembunyi Voting</div><div class="info">Hilangkan <b>namamu</b> dari daftar pilihan voting ronde ini sehingga tidak bisa dipilih.<br>Sisa: <b>' + sisaEng + '/2</b>. Bisa simpan skill.<br><span style="opacity:.85">Kamu tetap melihat kata Spy & Warga. Menang jika Spy dan Warga tersingkir.</span></div>';
+        var sisaEng = Math.max(0, batasSkill(2) - (p.duelistSembunyiUses || 0));
+        document.getElementById("skillIsi").innerHTML = '<div class="skill">🔧 Sembunyi Voting</div><div class="info">Hilangkan <b>namamu</b> dari daftar pilihan voting ronde ini sehingga tidak bisa dipilih.<br>Sisa: <b>' + sisaEng + '/' + batasSkill(2) + '</b>. Bisa simpan skill.<br><span style="opacity:.85">Kamu tetap melihat kata Spy & Warga. Menang jika Spy dan Warga tersingkir.</span></div>';
         var htmlEng = '';
         if (sisaEng <= 0) {
-            htmlEng += '<div class="info" style="opacity:.7">Skill sembunyi sudah habis (2/2).</div>';
+            htmlEng += '<div class="info" style="opacity:.7">Skill sembunyi sudah habis.</div>';
             htmlEng += '<button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
         } else {
             htmlEng += '<button type="button" class="target-btn" style="background:#0f766e" onclick="window.pakaiDuelistSembunyi()">⚔️ SEMBUNYI DARI VOTING (' + sisaEng + 'x)</button>';
@@ -4502,13 +4601,13 @@ function tampilkanSkill() {
         if (!p.skill || p.skill.id === "tidak_ada" || p.skill.id === "dasar") {
             p.skill = {id:"perisai", nama:labelPerisai, fungsi:"Pada giliranmu, pilih Gunakan Skill untuk membatalkan efek skill yang mengenaimu (2x), atau Simpan Skill.", cara:"Pilih gunakan / simpan", maxUses:2};
         }
-        if (typeof p.perisaiSisa !== "number") p.perisaiSisa = 2;
+        if (typeof p.perisaiSisa !== "number") p.perisaiSisa = batasSkill(2);
         var sisaP = p.perisaiSisa;
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">' + labelPerisai + '</div>' +
-            '<div class="info"><b>Fungsi:</b> Batalkan efek skill yang mengenaimu (jika ada).<br>Sisa penggunaan: <b>' + sisaP + '/2</b><br><span style="opacity:.85">Kamu tidak tahu apakah ada skill yang mengenai — pilih dengan hati-hati.</span></div>';
+            '<div class="info"><b>Fungsi:</b> Batalkan efek skill yang mengenaimu (jika ada).<br>Sisa penggunaan: <b>' + sisaP + '/' + batasSkill(2) + '</b><br><span style="opacity:.85">Kamu tidak tahu apakah ada skill yang mengenai — pilih dengan hati-hati.</span></div>';
         if (sisaP <= 0) {
-            boxTarget.innerHTML = '<div class="info">❌ Perisai sudah habis (2/2).</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
+            boxTarget.innerHTML = '<div class="info">❌ Perisai sudah habis.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
         } else {
             boxTarget.innerHTML =
                 '<button type="button" class="target-btn" style="background:#059669" onclick="window.pakaiPerisai()">🛡️ GUNAKAN SKILL</button>' +
@@ -4703,7 +4802,8 @@ function tampilkanSkill() {
         // Korban Hacker / Polisi / Gluttony / Dalang
         // Penyebab sengaja tidak ditampilkan agar tidak diketahui
         document.getElementById("skillIsi").innerHTML =
-            '<div class="skill">❌ Skill tidak dapat digunakan</div>';
+            '<div class="skill">❌ Skill tidak dapat digunakan</div>' +
+            '<div class="info" style="text-align:center">❌ Skill tidak dapat digunakan</div>';
         boxTarget.innerHTML = '';
         document.getElementById("hasilSkill").classList.add("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -4746,11 +4846,11 @@ function tampilkanSkill() {
             '</div>';
         boxTarget.innerHTML = '<button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT (PASIF)</button>';
     } else if (p.role === "Hacker" || (p.skill && p.skill.id === "hacker")) {
-        var sisaHack = Math.max(0, 3 - (p.hackerUses || 0));
+        var sisaHack = Math.max(0, batasSkill(3) - (p.hackerUses || 0));
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">💻 Hacker</div>' +
             '<div class="info"><b>Fungsi:</b> Matikan skill target (teretas) <b>1 ronde</b>.<br>' +
-            'Sisa penggunaan: <b>' + sisaHack + '/3</b><br>' +
+            'Sisa penggunaan: <b>' + sisaHack + '/' + batasSkill(3) + '</b><br>' +
             (sisaHack <= 0 ? '<span style="color:#ef4444">Skill sudah habis (3×).</span>' : 'Pilih target, atau simpan skill.') + '</div>';
         if (sisaHack <= 0) {
             boxTarget.innerHTML = '<div class="info">❌ Skill Hacker sudah dipakai 3×.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
@@ -4764,11 +4864,11 @@ function tampilkanSkill() {
             boxTarget.innerHTML = htmlH;
         }
     } else if (p.role === "Pengacau" || (p.skill && p.skill.id === "pengacau")) {
-        var sisaPeng = Math.max(0, 2 - (p.pengacauUses || 0));
+        var sisaPeng = Math.max(0, batasSkill(2) - (p.pengacauUses || 0));
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">🌀 Pengacau</div>' +
             '<div class="info"><b>Fungsi:</b> Vote target tidak dihitung ronde ini.<br>' +
-            'Sisa penggunaan: <b>' + sisaPeng + '/2</b><br>' +
+            'Sisa penggunaan: <b>' + sisaPeng + '/' + batasSkill(2) + '</b><br>' +
             (sisaPeng <= 0 ? '<span style="color:#ef4444">Skill sudah habis (2×).</span>' : 'Pilih target, atau simpan skill.') + '</div>';
         if (sisaPeng <= 0) {
             boxTarget.innerHTML = '<div class="info">❌ Skill Pengacau sudah dipakai 2×.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
@@ -4782,11 +4882,11 @@ function tampilkanSkill() {
             boxTarget.innerHTML = htmlP;
         }
     } else if (p.role === "Fitnah" || (p.skill && p.skill.id === "fitnah")) {
-        var sisaFit = Math.max(0, 2 - (p.fitnahUses || 0));
+        var sisaFit = Math.max(0, batasSkill(2) - (p.fitnahUses || 0));
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">📢 Fitnah</div>' +
             '<div class="info"><b>Fungsi:</b> Target mendapat <b>+1 vote</b> otomatis ronde ini.<br>' +
-            'Sisa penggunaan: <b>' + sisaFit + '/2</b><br>' +
+            'Sisa penggunaan: <b>' + sisaFit + '/' + batasSkill(2) + '</b><br>' +
             (sisaFit <= 0 ? '<span style="color:#ef4444">Skill sudah habis (2×).</span>' : 'Pilih target, atau simpan skill.') + '</div>';
         if (sisaFit <= 0) {
             boxTarget.innerHTML = '<div class="info">❌ Skill Fitnah sudah dipakai 2×.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
@@ -4800,11 +4900,11 @@ function tampilkanSkill() {
             boxTarget.innerHTML = htmlF;
         }
     } else if (p.role === "Pembungkam" || (p.skill && p.skill.id === "pembungkam")) {
-        var sisaBung = Math.max(0, 2 - (p.pembungkamUses || 0));
+        var sisaBung = Math.max(0, batasSkill(2) - (p.pembungkamUses || 0));
         document.getElementById("skillIsi").innerHTML =
             '<div class="skill">🤐 Pembungkam</div>' +
             '<div class="info"><b>Fungsi:</b> Target tidak bisa vote ronde ini.<br>' +
-            'Sisa penggunaan: <b>' + sisaBung + '/2</b><br>' +
+            'Sisa penggunaan: <b>' + sisaBung + '/' + batasSkill(2) + '</b><br>' +
             (sisaBung <= 0 ? '<span style="color:#ef4444">Skill sudah habis (2×).</span>' : 'Pilih target, atau simpan skill.') + '</div>';
         if (sisaBung <= 0) {
             boxTarget.innerHTML = '<div class="info">❌ Skill Pembungkam sudah dipakai 2×.</div><button type="button" class="target-btn" onclick="window.skipSpecialSkill()">LANJUT</button>';
@@ -4892,12 +4992,12 @@ function tampilkanSkill() {
 
 
         } else if (p.skill.id === "gluttony" || p.role === "Gluttony") {
-            var sisaG = Math.max(0, 2 - (p.gluttonyUses || 0));
+            var sisaG = Math.max(0, batasSkill(2) - (p.gluttonyUses || 0));
             document.getElementById("skillIsi").innerHTML =
                 '<div class="skill">🍖 Gluttony</div>' +
-                '<div class="info"><b>Fungsi:</b> Makan 1 pemain. Target ronde ini tidak bisa skill, tidak bisa vote, dan hilang dari pilihan voting.<br>Sisa penggunaan: <b>' + sisaG + '/2</b></div>';
+                '<div class="info"><b>Fungsi:</b> Makan 1 pemain. Target ronde ini tidak bisa skill, tidak bisa vote, dan hilang dari pilihan voting.<br>Sisa penggunaan: <b>' + sisaG + '/' + batasSkill(2) + '</b></div>';
             if (sisaG <= 0) {
-                boxTarget.innerHTML = '<div class="info">❌ Skill Gluttony sudah habis (2/2).</div><button type="button" class="target-btn" onclick="window.simpanSkillGluttony()">LANJUT</button>';
+                boxTarget.innerHTML = '<div class="info">❌ Skill Gluttony sudah habis.</div><button type="button" class="target-btn" onclick="window.simpanSkillGluttony()">LANJUT</button>';
             } else {
                 var htmlG = '<div class="info">Pilih pemain yang akan dimakan, atau simpan skill:</div>';
                 for (var gi = 0; gi < pemain.length; gi++) {
@@ -5388,7 +5488,7 @@ window.pakaiHacker = function(targetIdx) {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p || !(p.role === "Hacker" || (p.skill && p.skill.id === "hacker"))) return;
-        var sisa = Math.max(0, 3 - (p.hackerUses || 0));
+        var sisa = Math.max(0, batasSkill(3) - (p.hackerUses || 0));
         if (sisa <= 0) {
             document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>❌ Skill Hacker sudah dipakai 3×.";
             document.getElementById("hasilSkill").classList.remove("hidden");
@@ -5403,7 +5503,7 @@ window.pakaiHacker = function(targetIdx) {
         if (gH.blocked) {
             p.hackerUses = (p.hackerUses || 0) + 1;
             p.skillUsed = true;
-            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revH.reversed ? revH.pesan + "<br>" : "") + gH.pesan + "<br>Sisa Hacker: <b>" + (3 - p.hackerUses) + "/3</b>";
+            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revH.reversed ? revH.pesan + "<br>" : "") + gH.pesan + "<br>Sisa Hacker: <b>" + (batasSkill(3) - p.hackerUses) + "/" + batasSkill(3) + "</b>";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
             document.getElementById("pilihanTarget").innerHTML = "";
@@ -5416,8 +5516,8 @@ window.pakaiHacker = function(targetIdx) {
         p.skillUsed = true;
         try { mainkanEfekSkill("scan", revH.reversed ? "↩️ REVERSE!" : "💻 HACKER!"); } catch (e) {}
         document.getElementById("hasilSkill").innerHTML = revH.reversed
-            ? ("<b>HASIL SKILL:</b><br>" + revH.pesan + "<br>💻 Efek Hacker mengenai <b>" + pemain[vH].nama + "</b> (teretas 1 ronde). Sisa: <b>" + (3 - p.hackerUses) + "/3</b>")
-            : ("<b>HASIL SKILL:</b><br>💻 Skill <b>" + pemain[vH].nama + "</b> dilumpuhkan (teretas) selama <b>1 ronde</b>!<br>Sisa: <b>" + (3 - p.hackerUses) + "/3</b>");
+            ? ("<b>HASIL SKILL:</b><br>" + revH.pesan + "<br>💻 Efek Hacker mengenai <b>" + pemain[vH].nama + "</b> (teretas 1 ronde). Sisa: <b>" + (batasSkill(3) - p.hackerUses) + "/" + batasSkill(3) + "</b>")
+            : ("<b>HASIL SKILL:</b><br>💻 Skill <b>" + pemain[vH].nama + "</b> dilumpuhkan (teretas) selama <b>1 ronde</b>!<br>Sisa: <b>" + (batasSkill(3) - p.hackerUses) + "/" + batasSkill(3) + "</b>");
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
         document.getElementById("pilihanTarget").innerHTML = "";
@@ -5430,7 +5530,7 @@ window.pakaiHacker = function(targetIdx) {
 window.simpanSkillHacker = function() {
     try {
         var p = pemain[skillPlayerIdx()];
-        var sisa = p ? Math.max(0, 3 - (p.hackerUses || 0)) : 0;
+        var sisa = p ? Math.max(0, batasSkill(3) - (p.hackerUses || 0)) : 0;
         document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>💾 Skill Hacker disimpan (sisa " + sisa + "/3).";
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -5446,7 +5546,7 @@ window.pakaiPengacau = function(targetIdx) {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p || !(p.role === "Pengacau" || (p.skill && p.skill.id === "pengacau"))) return;
-        var sisa = Math.max(0, 2 - (p.pengacauUses || 0));
+        var sisa = Math.max(0, batasSkill(2) - (p.pengacauUses || 0));
         if (sisa <= 0) {
             document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>❌ Skill Pengacau sudah dipakai 2×.";
             document.getElementById("hasilSkill").classList.remove("hidden");
@@ -5461,7 +5561,7 @@ window.pakaiPengacau = function(targetIdx) {
         if (gP.blocked) {
             p.pengacauUses = (p.pengacauUses || 0) + 1;
             p.skillUsed = true;
-            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revP.reversed ? revP.pesan + "<br>" : "") + gP.pesan + "<br>Sisa Pengacau: <b>" + (2 - p.pengacauUses) + "/2</b>";
+            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revP.reversed ? revP.pesan + "<br>" : "") + gP.pesan + "<br>Sisa Pengacau: <b>" + (batasSkill(2) - p.pengacauUses) + "/" + batasSkill(2) + "</b>";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
             document.getElementById("pilihanTarget").innerHTML = "";
@@ -5473,8 +5573,8 @@ window.pakaiPengacau = function(targetIdx) {
         p.skillUsed = true;
         try { mainkanEfekSkill("vote", revP.reversed ? "↩️ REVERSE!" : "🌀 PENGACAU!"); } catch (e) {}
         document.getElementById("hasilSkill").innerHTML = revP.reversed
-            ? ("<b>HASIL SKILL:</b><br>" + revP.pesan + "<br>🌀 Efek Pengacau mengenai <b>" + pemain[vP].nama + "</b>. Sisa: <b>" + (2 - p.pengacauUses) + "/2</b>")
-            : ("<b>HASIL SKILL:</b><br>🌀 Vote <b>" + pemain[vP].nama + "</b> tidak dihitung ronde ini.<br>Sisa: <b>" + (2 - p.pengacauUses) + "/2</b>");
+            ? ("<b>HASIL SKILL:</b><br>" + revP.pesan + "<br>🌀 Efek Pengacau mengenai <b>" + pemain[vP].nama + "</b>. Sisa: <b>" + (batasSkill(2) - p.pengacauUses) + "/" + batasSkill(2) + "</b>")
+            : ("<b>HASIL SKILL:</b><br>🌀 Vote <b>" + pemain[vP].nama + "</b> tidak dihitung ronde ini.<br>Sisa: <b>" + (batasSkill(2) - p.pengacauUses) + "/" + batasSkill(2) + "</b>");
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
         document.getElementById("pilihanTarget").innerHTML = "";
@@ -5487,7 +5587,7 @@ window.pakaiPengacau = function(targetIdx) {
 window.simpanSkillPengacau = function() {
     try {
         var p = pemain[skillPlayerIdx()];
-        var sisa = p ? Math.max(0, 2 - (p.pengacauUses || 0)) : 0;
+        var sisa = p ? Math.max(0, batasSkill(2) - (p.pengacauUses || 0)) : 0;
         document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>💾 Skill Pengacau disimpan (sisa " + sisa + "/2).";
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -5503,7 +5603,7 @@ window.pakaiFitnah = function(targetIdx) {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p || !(p.role === "Fitnah" || (p.skill && p.skill.id === "fitnah"))) return;
-        var sisa = Math.max(0, 2 - (p.fitnahUses || 0));
+        var sisa = Math.max(0, batasSkill(2) - (p.fitnahUses || 0));
         if (sisa <= 0) {
             document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>❌ Skill Fitnah sudah dipakai 2×.";
             document.getElementById("hasilSkill").classList.remove("hidden");
@@ -5518,7 +5618,7 @@ window.pakaiFitnah = function(targetIdx) {
         if (gF.blocked) {
             p.fitnahUses = (p.fitnahUses || 0) + 1;
             p.skillUsed = true;
-            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revF.reversed ? revF.pesan + "<br>" : "") + gF.pesan + "<br>Sisa Fitnah: <b>" + (2 - p.fitnahUses) + "/2</b>";
+            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revF.reversed ? revF.pesan + "<br>" : "") + gF.pesan + "<br>Sisa Fitnah: <b>" + (batasSkill(2) - p.fitnahUses) + "/" + batasSkill(2) + "</b>";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
             document.getElementById("pilihanTarget").innerHTML = "";
@@ -5532,8 +5632,8 @@ window.pakaiFitnah = function(targetIdx) {
         votes[vF] += 1;
         try { mainkanEfekSkill("vote", revF.reversed ? "↩️ REVERSE!" : "📢 FITNAH!"); } catch (e) {}
         document.getElementById("hasilSkill").innerHTML = revF.reversed
-            ? ("<b>HASIL SKILL:</b><br>" + revF.pesan + "<br>📢 Efek Fitnah mengenai <b>" + pemain[vF].nama + "</b> (+1 vote). Sisa: <b>" + (2 - p.fitnahUses) + "/2</b>")
-            : ("<b>HASIL SKILL:</b><br>📢 <b>" + pemain[vF].nama + "</b> difitnah! Mendapat <b>+1 vote</b> otomatis ronde ini.<br>Sisa: <b>" + (2 - p.fitnahUses) + "/2</b>");
+            ? ("<b>HASIL SKILL:</b><br>" + revF.pesan + "<br>📢 Efek Fitnah mengenai <b>" + pemain[vF].nama + "</b> (+1 vote). Sisa: <b>" + (batasSkill(2) - p.fitnahUses) + "/" + batasSkill(2) + "</b>")
+            : ("<b>HASIL SKILL:</b><br>📢 <b>" + pemain[vF].nama + "</b> difitnah! Mendapat <b>+1 vote</b> otomatis ronde ini.<br>Sisa: <b>" + (batasSkill(2) - p.fitnahUses) + "/" + batasSkill(2) + "</b>");
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
         document.getElementById("pilihanTarget").innerHTML = "";
@@ -5547,7 +5647,7 @@ window.pakaiFitnah = function(targetIdx) {
 window.simpanSkillFitnah = function() {
     try {
         var p = pemain[skillPlayerIdx()];
-        var sisa = p ? Math.max(0, 2 - (p.fitnahUses || 0)) : 0;
+        var sisa = p ? Math.max(0, batasSkill(2) - (p.fitnahUses || 0)) : 0;
         document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>💾 Skill Fitnah disimpan (sisa " + sisa + "/2).";
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -5563,7 +5663,7 @@ window.pakaiPembungkam = function(targetIdx) {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p || !(p.role === "Pembungkam" || (p.skill && p.skill.id === "pembungkam"))) return;
-        var sisa = Math.max(0, 2 - (p.pembungkamUses || 0));
+        var sisa = Math.max(0, batasSkill(2) - (p.pembungkamUses || 0));
         if (sisa <= 0) {
             document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>❌ Skill Pembungkam sudah dipakai 2×.";
             document.getElementById("hasilSkill").classList.remove("hidden");
@@ -5578,7 +5678,7 @@ window.pakaiPembungkam = function(targetIdx) {
         if (gB.blocked) {
             p.pembungkamUses = (p.pembungkamUses || 0) + 1;
             p.skillUsed = true;
-            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revB.reversed ? revB.pesan + "<br>" : "") + gB.pesan + "<br>Sisa Pembungkam: <b>" + (2 - p.pembungkamUses) + "/2</b>";
+            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + (revB.reversed ? revB.pesan + "<br>" : "") + gB.pesan + "<br>Sisa Pembungkam: <b>" + (batasSkill(2) - p.pembungkamUses) + "/" + batasSkill(2) + "</b>";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
             document.getElementById("pilihanTarget").innerHTML = "";
@@ -5590,8 +5690,8 @@ window.pakaiPembungkam = function(targetIdx) {
         p.skillUsed = true;
         try { mainkanEfekSkill("vote", revB.reversed ? "↩️ REVERSE!" : "🤐 PEMBUNGKAM!"); } catch (e) {}
         document.getElementById("hasilSkill").innerHTML = revB.reversed
-            ? ("<b>HASIL SKILL:</b><br>" + revB.pesan + "<br>🤐 Efek Pembungkam mengenai <b>" + pemain[vB].nama + "</b>. Sisa: <b>" + (2 - p.pembungkamUses) + "/2</b>")
-            : ("<b>HASIL SKILL:</b><br>🤐 <b>" + pemain[vB].nama + "</b> dibungkam! Tidak bisa vote ronde ini.<br>Sisa: <b>" + (2 - p.pembungkamUses) + "/2</b>");
+            ? ("<b>HASIL SKILL:</b><br>" + revB.pesan + "<br>🤐 Efek Pembungkam mengenai <b>" + pemain[vB].nama + "</b>. Sisa: <b>" + (batasSkill(2) - p.pembungkamUses) + "/" + batasSkill(2) + "</b>")
+            : ("<b>HASIL SKILL:</b><br>🤐 <b>" + pemain[vB].nama + "</b> dibungkam! Tidak bisa vote ronde ini.<br>Sisa: <b>" + (batasSkill(2) - p.pembungkamUses) + "/" + batasSkill(2) + "</b>");
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
         document.getElementById("pilihanTarget").innerHTML = "";
@@ -5605,7 +5705,7 @@ window.pakaiPembungkam = function(targetIdx) {
 window.simpanSkillPembungkam = function() {
     try {
         var p = pemain[skillPlayerIdx()];
-        var sisa = p ? Math.max(0, 2 - (p.pembungkamUses || 0)) : 0;
+        var sisa = p ? Math.max(0, batasSkill(2) - (p.pembungkamUses || 0)) : 0;
         document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>💾 Skill Pembungkam disimpan (sisa " + sisa + "/2).";
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -6126,8 +6226,6 @@ function eksekusiSkill(targetIndex) {
                     ? "✅ " + target.nama + " satu tim denganmu."
                     : "⚠️ " + target.nama + " BUKAN satu tim.";
                 break;
-            case "pengintai_warga":
-
             case "penjebak":
                 if (fraksiPemain(target).nama === "Spy") {
                     if (!votes[targetIndex]) votes[targetIndex] = 0;
@@ -6171,10 +6269,6 @@ function eksekusiSkill(targetIndex) {
             }
 
             // ===== SPY =====
-            case "pengintai":
-                pesan = "👁️ " + target.nama + " → Role: <b>" + target.role + "</b> | Kata: <b>" + target.kata + "</b>";
-                break;
-
             case "hacker":
                 if (dilindungiGuardianAktif(targetIndex)) {
                     pesan = "🛡️ Guardian melindungi <b>" + target.nama + "</b> dari Hacker!";
@@ -6408,7 +6502,7 @@ function eksekusiSkill(targetIndex) {
                     pengguna.role = "Warga";
                     pengguna.kata = target.kata || ((typeof kataWargaGlobal !== "undefined" && kataWargaGlobal) ? kataWargaGlobal : "???");
                 }
-                pesan = "👥 The Doppleganger mengunci target: <b>" + target.nama + "</b>. Sekarang role <b>" + pengguna.role + "</b>, kata <b>" + pengguna.kata + "</b>. Target tidak bisa diganti.";
+                pesan = "👥 The Doppleganger mengunci target: <b>" + target.nama + "</b>. Sekarang role <b>" + pengguna.role + "</b>, kata <b>" + kataTampilPemain(pengguna) + "</b>. Target tidak bisa diganti.";
                 break;
             case "no_you":
                 // Target hanya bisa dipilih sekali, lalu dikunci permanen
@@ -6447,7 +6541,7 @@ function eksekusiSkill(targetIndex) {
                 target.skillUsed = false;
                 target.skillUses = (target.skillUses || 0);
                 pesan = "🎭 <b>Kaitou</b> menukar dengan <b>" + target.nama + "</b>!<br>" +
-                    "• <b>" + pengguna.nama + "</b> sekarang: <b>" + pengguna.role + "</b>" + (pengguna.kata ? (" — kata: " + pengguna.kata) : "") + "<br>" +
+                    "• <b>" + pengguna.nama + "</b> sekarang: <b>" + pengguna.role + "</b>" + (" — kata: " + kataTampilPemain(pengguna)) + "<br>" +
                     "• <b>" + target.nama + "</b> sekarang <b>Kaitou</b> dan bisa memilih target tukar berikutnya di giliran skill.";
                 break;
             case "gluto":
@@ -6490,7 +6584,7 @@ function eksekusiSkill(targetIndex) {
                     cara: "-"
                 };
                 pesan = "🔀 <b>Changer</b> menukar peran dan kata dengan <b>" + target.nama + "</b>!<br>" +
-                    "Kamu sekarang: <b class='" + warnaRole(pengguna.role) + "'>" + pengguna.role + "</b> | Kata: <b>" + (pengguna.kata || "(kosong)") + "</b><br>" +
+                    "Kamu sekarang: <b class='" + warnaRole(pengguna.role) + "'>" + pengguna.role + "</b> | Kata: <b>" + kataTampilPemain(pengguna) + "</b><br>" +
                     "<b>" + target.nama + "</b> menjadi <b class='spy'>Changer</b> tetapi <b>tidak bisa menukar lagi</b>.<br>" +
                     "⚠️ <b>Skill telah habis</b> — pertukaran hanya sekali seumur permainan.";
                 break;
@@ -6609,7 +6703,7 @@ function eksekusiSkill(targetIndex) {
             pembongkar:"scan", pemindai:"scan", pelacak:"scan", penyelidik:"scan", penyusup:"scan", penggeledahan:"scan", radar:"scan", auditor:"scan", penyidik:"scan", penilai:"scan", pengamat_malam:"scan",
             pelindung:"shield", sembuhkan:"shield", vaksin:"shield", penengah:"shield", pelindung_ganda:"shield", penjaga:"shield", guardian:"shield",
             hidupkan:"heal", resusitasi:"heal", defibrilator:"heal", obat_ajaib:"heal", darurat:"heal", transplantasi:"heal", diagnosis:"heal", operasi:"heal", antidot:"heal",
-            pengintai:"info", duelist:"info", arwah_spy:"info", survivor:"info", traitor:"info", mayor:"vote", mayor_spy:"vote", hakim:"vote", godfather:"vote",
+            duelist:"info", arwah_spy:"info", survivor:"info", traitor:"info", mayor:"vote", mayor_spy:"vote", hakim:"vote", godfather:"vote",
             dementor:"steal", kaito:"steal", changer:"transform", gluto:"transform", doppleganger:"transform", si_pengganti:"transform", lord:"shield", king:"shield", penjebak:"trap", pemantau:"scan",
             pengacau:"vote", fitnah:"vote", pembungkam:"vote", provokator:"vote", chaos:"vote",
             arsonit:"death", joker:"death",
@@ -6944,7 +7038,7 @@ window.pakaiPenipuTarget = function(targetIdx) {
         try { mainkanEfekSkill("transform", "👤 MENIRU NAMA!"); } catch (e) {}
         var posLabel = (p.penipuTiruPosisi === "atas") ? "di ATAS" : "di BAWAH";
         document.getElementById("hasilSkill").innerHTML =
-            "<b>HASIL SKILL:</b><br>👤 <b>Meniru Nama aktif!</b><br>Di sesi voting, namamu akan tampil sebagai <b>" + pemain[targetIdx].nama + "</b> dan berada <b>" + posLabel + "</b> nama target yang sama.<br>(Sisa: " + p.penipuTiruSisa + "/2)";
+            "<b>HASIL SKILL:</b><br>👤 <b>Meniru Nama aktif!</b><br>Di sesi voting, namamu akan tampil sebagai <b>" + pemain[targetIdx].nama + "</b> dan berada <b>" + posLabel + "</b> nama target yang sama.<br>(Sisa: " + p.penipuTiruSisa + "/" + batasSkill(2) + ")";
         document.getElementById("hasilSkill").classList.remove("hidden");
         document.getElementById("btnNextSkill").classList.remove("hidden");
         document.getElementById("pilihanTarget").innerHTML = "";
@@ -7279,14 +7373,14 @@ window.pakaiDuelistSembunyi = function() {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p) return;
-        if ((p.duelistSembunyiUses || 0) >= 2) return;
+        if ((p.duelistSembunyiUses || 0) >= batasSkill(2)) return;
         p.duelistSembunyiUses = (p.duelistSembunyiUses || 0) + 1;
         p.duelistSembunyiVote = true;
         p.skillUsed = true;
         try { mainkanEfekSkill("scan", "⚔️ DUELIST SEMBUNYI!"); } catch (e) {}
         var box = document.getElementById("hasilSkill");
         if (box) {
-            box.innerHTML = "<b>HASIL SKILL:</b><br>🔧 Namamu <b>hilang dari pilihan voting</b> ronde ini.<br>(Sisa: " + (2 - p.duelistSembunyiUses) + "x)";
+            box.innerHTML = "<b>HASIL SKILL:</b><br>🔧 Namamu <b>hilang dari pilihan voting</b> ronde ini.<br>(Sisa: " + (batasSkill(2) - p.duelistSembunyiUses) + "x)";
             box.classList.remove("hidden");
         }
         var pt = document.getElementById("pilihanTarget");
@@ -7349,7 +7443,7 @@ window.pakaiDoppleganger = function(targetIdx) {
         try { mainkanEfekSkill("transform", "👥 DOPPLEGANGER"); } catch (e) {}
         var box = document.getElementById("hasilSkill");
         if (box) {
-            box.innerHTML = "<b>HASIL SKILL:</b><br>👥 Target dikunci: <b>" + target.nama + "</b>.<br>Role: <b>" + p.role + "</b>, kata: <b>" + p.kata + "</b>.<br><span style='opacity:.9'>Target tidak bisa diganti lagi.</span>";
+            box.innerHTML = "<b>HASIL SKILL:</b><br>👥 Target dikunci: <b>" + target.nama + "</b>.<br>Role: <b>" + p.role + "</b>, kata: <b>" + kataTampilPemain(p) + "</b>.<br><span style='opacity:.9'>Target tidak bisa diganti lagi.</span>";
             box.classList.remove("hidden");
         }
         var pt = document.getElementById("pilihanTarget");
@@ -7458,7 +7552,7 @@ window.pakaiGluttony = function(targetIdx) {
     try {
         var p = pemain[skillPlayerIdx()];
         if (!p) return;
-        if ((p.gluttonyUses || 0) >= 2) {
+        if ((p.gluttonyUses || 0) >= batasSkill(2)) {
             document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>❌ Skill Gluttony sudah habis.";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
@@ -7478,7 +7572,7 @@ window.pakaiGluttony = function(targetIdx) {
         var gG = cobaBlokirGuardian(victimIdx, "Gluttony");
         if (gG.blocked) {
             p.gluttonyUses = (p.gluttonyUses || 0) + 1;
-            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + ((rev && rev.reversed) ? rev.pesan + "<br>" : "") + gG.pesan + "<br>(Sisa Gluttony: " + (2 - p.gluttonyUses) + "x)";
+            document.getElementById("hasilSkill").innerHTML = "<b>HASIL SKILL:</b><br>" + ((rev && rev.reversed) ? rev.pesan + "<br>" : "") + gG.pesan + "<br>(Sisa Gluttony: " + (batasSkill(2) - p.gluttonyUses) + "x)";
             document.getElementById("hasilSkill").classList.remove("hidden");
             document.getElementById("btnNextSkill").classList.remove("hidden");
             document.getElementById("pilihanTarget").innerHTML = "";
@@ -7495,8 +7589,8 @@ window.pakaiGluttony = function(targetIdx) {
         var box = document.getElementById("hasilSkill");
         if (box) {
             var msgG = (rev && rev.reversed)
-                ? ("<b>HASIL SKILL:</b><br>" + rev.pesan + "<br>🍖 Efek Gluttony berbalik! <b>" + pemain[victimIdx].nama + "</b> (penyerang) yang dimakan — tidak bisa skill/vote & hilang dari pilihan voting.<br>(Sisa Gluttony: " + (2 - p.gluttonyUses) + "x)")
-                : ("<b>HASIL SKILL:</b><br>🍖 <b>" + pemain[victimIdx].nama + "</b> dimakan Gluttony!<br>Target tidak bisa skill, tidak bisa vote, dan hilang dari pilihan voting ronde ini.<br>(Sisa: " + (2 - p.gluttonyUses) + "x)");
+                ? ("<b>HASIL SKILL:</b><br>" + rev.pesan + "<br>🍖 Efek Gluttony berbalik! <b>" + pemain[victimIdx].nama + "</b> (penyerang) yang dimakan — tidak bisa skill/vote & hilang dari pilihan voting.<br>(Sisa Gluttony: " + (batasSkill(2) - p.gluttonyUses) + "x)")
+                : ("<b>HASIL SKILL:</b><br>🍖 <b>" + pemain[victimIdx].nama + "</b> dimakan Gluttony!<br>Target tidak bisa skill, tidak bisa vote, dan hilang dari pilihan voting ronde ini.<br>(Sisa: " + (batasSkill(2) - p.gluttonyUses) + "x)");
             box.innerHTML = msgG;
             box.classList.remove("hidden");
         }
@@ -7982,7 +8076,7 @@ function tutupVoteModal() {
 
 /** Batas pemakaian skill Swapper: Swapper Spy hanya 1×, Swapper (Warga) tetap 2×. */
 function maksPakaiSwapper(p) {
-    return (p && (p.role === "Swapper Spy" || (p.skill && p.skill.id === "swaper_spy"))) ? 1 : 2;
+    return batasSkill((p && (p.role === "Swapper Spy" || (p.skill && p.skill.id === "swaper_spy"))) ? 1 : 2);
 }
 
 function tampilkanSwapperTargetsDariHasil() {
@@ -8584,7 +8678,7 @@ function tampilkanKemenanganAman(pemenang, pesan) {
         for (var i = 0; i < pemain.length; i++) {
             var p = pemain[i], st = p.hidup ? '✅' : '💀';
             var roleShow = namaRoleTampil(p);
-            var kataShow = p.isHipnotisPartner ? '???' : (p.kata || '');
+            var kataShow = kataTampilPemain(p);
             html += st + ' <b>' + p.nama + '</b> → <span class="' + warnaRolePemain(p) + '">' + roleShow + '</span> (' + kataShow + ')<br>';
         }
         html += '</div><div class="info" style="margin-top:12px;opacity:.85">Ronde terakhir: ' + ronde + '</div>';
@@ -8793,7 +8887,7 @@ function tampilkanMenangKhusus(judul, deskripsi, pesanElim) {
         var p = pemain[i];
         var st = p.hidup ? "✅" : "💀";
         var roleShow = namaRoleTampil(p);
-        var kataShow = p.isHipnotisPartner ? "???" : (p.kata || "");
+        var kataShow = kataTampilPemain(p);
         html += st + " <b>" + p.nama + "</b> → <span class='" + warnaRolePemain(p) + "'>" + roleShow + "</span> (" + kataShow + ")<br>";
     }
     html += '</div><button type="button" onclick="location.reload()">MAIN LAGI</button>';
@@ -9107,7 +9201,7 @@ function prosesSelesaiRondeVoting(pesanEliminasi, dieliminasi) {
             var p2 = pemain[j];
             var st2 = p2.hidup ? "✅" : "💀";
             var roleShow2 = namaRoleTampil(p2);
-            var kataShow2 = p2.isHipnotisPartner ? "???" : (p2.kata || "");
+            var kataShow2 = kataTampilPemain(p2);
             hasilHTML += st2 + " <b>" + p2.nama + "</b> → <span class='" + warnaRolePemain(p2) + "'>" + roleShow2 + "</span> (" + kataShow2 + ")<br>";
         }
         hasilHTML += '</div>';
@@ -9511,7 +9605,22 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
         { key: 'hakim', icon: '🔨', name: 'Hakim', def: true,
           desc: 'Tim Warga • menggantikan 1 Warga biasa. Vote-nya dihitung 2×. Jika ia memvote sesama Warga dan Warga itu tereliminasi, bonus 2× dicabut (vote-nya dihitung 1× seterusnya).' }
     ];
-    var SKILL_MAX = { guardian: 1, polisi: 1, hacker: 3, fitnah: 2, pengacau: 2, pembungkam: 2, changer: 1, penipu: 2, gluttony: 2, swapper: 2, swapperspy: 1 };     // batas pemakaian skill per game
+    var SKILL_MAX_DASAR = { guardian: 1, polisi: 1, hacker: 3, fitnah: 2, pengacau: 2, pembungkam: 2, changer: 1, penipu: 2, gluttony: 2, swapper: 2, swapperspy: 1 };     // batas dasar pemakaian skill per game
+    // Batas skill menyesuaikan jumlah pemain: ≤5 → dasar-1 | 6-9 → dasar | 10-14 → dasar+1 | 15+ → dasar+2 (skill sekali pakai tetap 1×)
+    function jumlahPemainOnline() {
+        var arr = (typeof H !== 'undefined' && H && H.players) ? H.players : ((typeof S !== 'undefined' && S && S.players) ? S.players : []);
+        return arr.length || 6;
+    }
+    function skalaBatasSkill(dasar) {
+        if (dasar <= 1) return dasar;
+        var n = jumlahPemainOnline();
+        var bonus = n <= 5 ? -1 : (n <= 9 ? 0 : (n <= 14 ? 1 : 2));
+        return Math.max(1, dasar + bonus);
+    }
+    var SKILL_MAX = {};
+    Object.keys(SKILL_MAX_DASAR).forEach(function (k) {
+        Object.defineProperty(SKILL_MAX, k, { enumerable: true, get: function () { return skalaBatasSkill(SKILL_MAX_DASAR[k]); } });
+    });
     var FLAG_OF = { guardian: 'guardian', polisi: 'polisi', hacker: 'hacker', fitnah: 'fitnah', pengacau: 'pengacau', pembungkam: 'pembungkam', changer: 'changer', penipu: 'penipu', hantu: 'hantu', keadilan: 'keadilan', swapper: 'swapper', mayor: 'mayor', gluttony: 'gluttony', swapperspy: 'swapperSpy', mayorspy: 'mayorSpy', pemburu: 'pemburu', pemburuspy: 'pemburuSpy', revenger: 'revenger', boomerang: 'boomerang', hakim: 'hakim' };   // kunci peran -> properti pemain
     var OPT_SPY_KEYS = ['gluttony', 'penipu', 'changer', 'pembungkam', 'pengacau', 'fitnah', 'hacker', 'swapperspy', 'mayorspy', 'pemburuspy'];
     function optTeam(k) { return OPT_SPY_KEYS.indexOf(k) >= 0 ? 'spy' : 'warga'; }
@@ -11188,7 +11297,7 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
         else if (m.swapped === 'to') info += '<br>🔀 Peran & katamu <b>ditukar oleh skill Changer</b>! Kini kamu berada di <b>Tim Spy</b> dengan kata baru. Kamu tidak bisa menukar lagi.';
         var label = pbs ? '🏹 PEMBURU SPY' : pbw ? '🏹 PEMBURU' : rvw ? '🔪 REVENGER' : bw ? '🪃 BOOMERANG' : hkw ? '🔨 HAKIM' : gl ? '🍖 GLUTTONY (SPY)' : (hk ? '💻 HACKER (SPY)' : hf ? '📢 FITNAH (SPY)' : pc ? '🌀 PENGACAU (SPY)' : pb ? '🤐 PEMBUNGKAM (SPY)' : ch ? '🔀 CHANGER (SPY)' : pn ? '🎭 PENIPU (SPY)' : sws ? '🔄 SWAPPER SPY' : (mys ? '🎖️ MAYOR SPY' : (gd ? '🛡️ GUARDIAN' : (po ? '👮 POLISI' : kd ? '⚖️ KEADILAN' : ht ? '👻 HANTU' : (sw ? '🔄 SWAPPER' : (my ? '🎖️ MAYOR' : roleLabel(m.role)))))));
         return '<div class="role ' + (spy ? 'spy' : (gd ? 'guardian' : (po ? 'polisi' : kd ? 'dewi' : ht ? 'hantu' : 'warga'))) + '">' + label + '</div>' +
-            '<div class="kata">' + esc(m.word) + '</div>' +
+            '<div class="kata">' + esc(m.word || '???') + '</div>' +
             '<div class="info" style="text-align:center">' + info + '</div>';
     }
 
@@ -11314,8 +11423,8 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
     function renderRole(st) {
         var me = findMe(st), host = !!(me && me.host);
         $('olRoleCard').innerHTML = roleRevealed
-            ? identityHtml(st)
-            : '<div class="info" style="text-align:center">🔒 Identitasmu tersembunyi. Pastikan tidak ada yang mengintip, lalu tekan tombol di atas.</div>';
+            ? identityHtml(st) + '<div class="kartu-hint">👆 Ketuk kartu untuk menyembunyikan</div>'
+            : '<div class="kartu-belakang"><div class="kb-ikon">🂠</div><div class="kb-judul">Identitasmu Tersembunyi</div><small>Pastikan tidak ada yang mengintip, lalu 👆 ketuk kartu untuk membalik.</small></div>';
         $('olRoleToggle').textContent = roleRevealed ? '🙈 SEMBUNYIKAN' : '👁️ TAMPILKAN KATA & PERAN';
         var b = $('olBtnReady'), ready = !!(me && me.ready);
         b.disabled = ready;
@@ -11484,7 +11593,7 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
             var status = p.left ? '🚪 keluar' : (p.alive ? '✅ selamat' : '💀 tereliminasi');
             return '<div class="ol-reveal-row"><span class="n"><b>' + esc(p.name) + '</b>' + (p.id === st.you ? ' <small>(kamu)</small>' : '') +
                 '<br><small>' + status + '</small></span><span class="' + (p.role === 'spy' ? 'spy' : (p.guardian ? 'guardian' : (p.polisi ? 'polisi' : p.keadilan ? 'dewi' : p.hantu ? 'hantu' : 'warga'))) + '" style="font-weight:800">' +
-                specialLabel(p) + '</span><span class="w">' + esc(p.word) + '</span></div>';
+                specialLabel(p) + '</span><span class="w">' + esc(p.word || '???') + '</span></div>';
         }).join('');
         $('olEndBody').innerHTML = html;
         $('olBtnAgain').classList.toggle('hidden', !host);
@@ -11600,8 +11709,16 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
         if (!S || !S.me) return;
         $('olPeekBody').innerHTML = identityHtml(S);
         $('olPeek').classList.remove('hidden');
+        var m = $('olPeek').querySelector('.ol-modal');
+        if (m) { m.classList.remove('kartu-flip-out'); m.classList.remove('kartu-flip-in'); void m.offsetWidth; m.classList.add('kartu-flip-in'); setTimeout(function () { m.classList.remove('kartu-flip-in'); }, 450); }
     }
-    function closePeek() { $('olPeek').classList.add('hidden'); $('olPeekBody').innerHTML = ''; }
+    function closePeek() {
+        var pk = $('olPeek'), m = pk.querySelector('.ol-modal');
+        if (pk.classList.contains('hidden')) return;
+        if (!m) { pk.classList.add('hidden'); $('olPeekBody').innerHTML = ''; return; }
+        m.classList.remove('kartu-flip-in'); m.classList.add('kartu-flip-out');
+        setTimeout(function () { pk.classList.add('hidden'); $('olPeekBody').innerHTML = ''; m.classList.remove('kartu-flip-out'); }, 270);
+    }
 
     /* ---------- Timer tick ---------- */
     function updateTimers() {
@@ -11669,7 +11786,19 @@ window.WTS_ONLINE_CONFIG = window.WTS_ONLINE_CONFIG || {
                 break;
             case 'kick': act({ t: 'kick', id: el.getAttribute('data-id') }); break;
             case 'start': act({ t: 'start' }); break;
-            case 'toggle-role': roleRevealed = !roleRevealed; if (S) renderRole(S); break;
+            case 'toggle-role':
+                if (window._olFlipBusy) break;
+                window._olFlipBusy = true;
+                (function () {
+                    var card = $('olRoleCard');
+                    card.classList.remove('kartu-flip-in'); card.classList.add('kartu-flip-out');
+                    setTimeout(function () {
+                        roleRevealed = !roleRevealed; if (S) renderRole(S);
+                        card.classList.remove('kartu-flip-out'); card.classList.add('kartu-flip-in');
+                        setTimeout(function () { card.classList.remove('kartu-flip-in'); window._olFlipBusy = false; }, 430);
+                    }, 270);
+                })();
+                break;
             case 'ready': act({ t: 'ready' }); break;
             case 'justice': act({ t: 'justice', target: el.getAttribute('data-id') }); break;
             case 'justice-none': act({ t: 'justice', none: true }); break;
